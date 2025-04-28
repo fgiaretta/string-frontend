@@ -17,7 +17,10 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  Snackbar,
+  Alert,
+  Tooltip
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,6 +28,8 @@ import AddIcon from '@mui/icons-material/Add';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import EmailIcon from '@mui/icons-material/Email';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import GoogleIcon from '@mui/icons-material/Google';
 import { useQuery } from '@tanstack/react-query';
 import { Company } from '../types';
 import businessService from '../services/businessService';
@@ -33,6 +38,8 @@ export default function Companies() {
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   // Fetch companies data
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -64,6 +71,34 @@ export default function Companies() {
 
   const handleViewDetails = (id: string) => {
     navigate(`/companies/${id}`);
+  };
+
+  const copyGoogleAuthUrl = () => {
+    // Get the environment part of the URL
+    const getEnvPrefix = () => {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      if (apiUrl.includes('api-dev')) return 'api-dev';
+      if (apiUrl.includes('api.')) return 'api';
+      return 'api-dev'; // Default to dev if not found
+    };
+
+    const env = getEnvPrefix();
+    const url = `https://${env}.string.tec.br/auth/google/authorize`;
+    
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        setSnackbarMessage('Google Auth URL copied to clipboard!');
+        setSnackbarOpen(true);
+      })
+      .catch(err => {
+        console.error('Failed to copy URL: ', err);
+        setSnackbarMessage('Failed to copy URL to clipboard');
+        setSnackbarOpen(true);
+      });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   if (isLoading) {
@@ -98,14 +133,27 @@ export default function Companies() {
         <Typography variant="h4">
           Companies
         </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />}
-          // onClick={() => navigate('/companies/new')}
-        >
-          Add Company
-        </Button>
+        <Box display="flex" gap={2}>
+          <Tooltip title="Copy Google Auth Provider URL">
+            <Button 
+              variant="outlined" 
+              color="secondary" 
+              startIcon={<GoogleIcon />}
+              endIcon={<ContentCopyIcon />}
+              onClick={copyGoogleAuthUrl}
+            >
+              Google Auth Provider
+            </Button>
+          </Tooltip>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<AddIcon />}
+            // onClick={() => navigate('/companies/new')}
+          >
+            Add Company
+          </Button>
+        </Box>
       </Box>
 
       <TableContainer component={Paper}>
@@ -200,6 +248,18 @@ export default function Companies() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for copy notification */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
