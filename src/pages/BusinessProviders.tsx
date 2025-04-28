@@ -18,18 +18,21 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Chip
+  Chip,
+  Avatar
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Provider } from '../types';
 import providerService from '../services/providerService';
 import businessService from '../services/businessService';
+import { format } from 'date-fns';
 
 export default function BusinessProviders() {
   const { businessId } = useParams<{ businessId: string }>();
@@ -90,6 +93,14 @@ export default function BusinessProviders() {
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedProvider(null);
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch (e) {
+      return dateString;
+    }
   };
 
   const isLoading = isLoadingBusiness || isLoadingProviders;
@@ -154,65 +165,86 @@ export default function BusinessProviders() {
         <Table sx={{ minWidth: 650 }} aria-label="providers table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
+              <TableCell>Provider</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Specialty</TableCell>
+              <TableCell>Calendar</TableCell>
+              <TableCell>Appointment</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Created</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {providersData?.providers.map((provider) => (
-              <TableRow key={provider.id}>
-                <TableCell component="th" scope="row">
-                  {provider.name}
-                </TableCell>
-                <TableCell>
-                  {provider.email ? (
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <EmailIcon fontSize="small" color="action" />
-                      {provider.email}
+            {providersData?.providers && providersData.providers.length > 0 ? (
+              providersData.providers.map((provider) => (
+                <TableRow key={provider.id}>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      {provider.profileImageUrl && (
+                        <Avatar src={provider.profileImageUrl} alt={provider.name} />
+                      )}
+                      <Box>
+                        <Typography variant="body1">{provider.name} {provider.surname}</Typography>
+                      </Box>
                     </Box>
-                  ) : '-'}
-                </TableCell>
-                <TableCell>
-                  {provider.phone ? (
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <PhoneIcon fontSize="small" color="primary" />
-                      {provider.phone}
-                    </Box>
-                  ) : '-'}
-                </TableCell>
-                <TableCell>{provider.specialty || '-'}</TableCell>
-                <TableCell>
-                  {provider.status && (
+                  </TableCell>
+                  <TableCell>
+                    {provider.email && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <EmailIcon fontSize="small" color="action" />
+                        <Typography variant="body2">{provider.email}</Typography>
+                      </Box>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {provider.googleCalendarId && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CalendarMonthIcon fontSize="small" color="primary" />
+                        <Typography variant="body2">
+                          {provider.googleCalendarId === 'primary' ? 'Primary Calendar' : provider.googleCalendarId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {(provider.appointmentDuration || provider.appointmentInterval) && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <AccessTimeIcon fontSize="small" color="action" />
+                        <Typography variant="body2">
+                          {provider.appointmentDuration}min + {provider.appointmentInterval}min
+                        </Typography>
+                      </Box>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <Chip 
-                      label={provider.status} 
-                      color={provider.status === 'active' ? 'success' : 'default'} 
+                      label={provider.state} 
+                      color={provider.state === 'active' ? 'success' : 'default'} 
                       size="small" 
                     />
-                  )}
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton 
-                    aria-label="edit"
-                    // onClick={() => navigate(`/companies/${businessId}/providers/${provider.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton 
-                    aria-label="delete"
-                    onClick={() => handleDeleteClick(provider)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-            {(!providersData?.providers || providersData.providers.length === 0) && (
+                  </TableCell>
+                  <TableCell>
+                    {provider.createdAt && formatDate(provider.createdAt)}
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton 
+                      aria-label="edit"
+                      // onClick={() => navigate(`/companies/${businessId}/providers/${provider.id}`)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton 
+                      aria-label="delete"
+                      onClick={() => handleDeleteClick(provider)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={7} align="center">
                   <Typography variant="body1" sx={{ py: 2 }}>
                     No providers found for this business
                   </Typography>
@@ -235,7 +267,7 @@ export default function BusinessProviders() {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete the provider "{selectedProvider?.name}"? 
+            Are you sure you want to delete the provider "{selectedProvider?.name} {selectedProvider?.surname}"? 
             This action cannot be undone.
           </DialogContentText>
         </DialogContent>

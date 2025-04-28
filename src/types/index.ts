@@ -47,16 +47,20 @@ export interface BusinessResponse {
 export interface Provider {
   id: string;
   name: string;
-  email?: string;
-  phone?: string;
-  specialty?: string;
-  status?: 'active' | 'inactive';
-  createdAt?: string;
-  businessId: string;
+  surname: string;
+  email: string;
+  profileImageUrl?: string;
+  googleCalendarId?: string;
+  appointmentDuration?: number;
+  appointmentInterval?: number;
+  instructions?: string[];
+  state: 'active' | 'inactive';
+  createdAt: string;
+  businessId?: string;
 }
 
 // Provider list response
 export interface ProviderListResponse {
   providers: Provider[];
-  count: number;
+  count?: number;
 }
