@@ -26,7 +26,7 @@ export interface QueryParams {
   [key: string]: any;
 }
 
-// Company type for the Companies list
+// Company type for both list and detail views
 export interface Company {
   id: string;
   name: string;
@@ -41,11 +41,4 @@ export interface Company {
 export interface BusinessResponse {
   businesses: Company[];
   count: number;
-}
-
-// Business detail response format
-export interface BusinessDetail {
-  name: string;
-  email?: string;
-  whatsappAssistantNumber?: string;
 }

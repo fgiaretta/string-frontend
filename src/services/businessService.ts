@@ -1,5 +1,5 @@
 import api from './api';
-import { Company, QueryParams, BusinessResponse, BusinessDetail } from '../types';
+import { Company, QueryParams, BusinessResponse } from '../types';
 
 // Get the environment part of the URL
 const getEnvPrefix = () => {
@@ -17,7 +17,7 @@ export const businessService = {
   },
 
   // Get a single company by ID
-  getCompany: async (id: string): Promise<BusinessDetail> => {
+  getCompany: async (id: string): Promise<Company> => {
     const env = getEnvPrefix();
     // Use a direct fetch to the specific URL format
     const response = await fetch(`https://${env}.string.tec.br/business/${id}`);
@@ -34,7 +34,7 @@ export const businessService = {
   },
 
   // Update an existing company
-  updateCompany: async (id: string, data: Partial<BusinessDetail>): Promise<BusinessDetail> => {
+  updateCompany: async (id: string, data: Partial<Company>): Promise<Company> => {
     const env = getEnvPrefix();
     const response = await fetch(`https://${env}.string.tec.br/business/${id}`, {
       method: 'PUT',
