@@ -74,6 +74,10 @@ export default function Companies() {
     navigate(`/companies/${id}`);
   };
 
+  const handleViewProviders = (id: string) => {
+    navigate(`/companies/${id}/providers`);
+  };
+
   const copyGoogleAuthUrl = () => {
     // Get the environment part of the URL
     const getEnvPrefix = () => {
@@ -206,24 +210,40 @@ export default function Companies() {
                 </TableCell>
                 <TableCell>{company.slackChannel || '-'}</TableCell>
                 <TableCell align="right">
-                  <IconButton 
-                    aria-label="view"
-                    onClick={() => handleViewDetails(company.id)}
-                  >
-                    <VisibilityIcon />
-                  </IconButton>
-                  <IconButton 
-                    aria-label="edit"
-                    onClick={() => navigate(`/companies/${company.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton 
-                    aria-label="delete"
-                    onClick={() => handleDeleteClick(company)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  <Tooltip title="View Providers">
+                    <IconButton 
+                      aria-label="providers"
+                      onClick={() => handleViewProviders(company.id)}
+                      color="primary"
+                    >
+                      <PeopleIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="View Details">
+                    <IconButton 
+                      aria-label="view"
+                      onClick={() => handleViewDetails(company.id)}
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Edit">
+                    <IconButton 
+                      aria-label="edit"
+                      onClick={() => navigate(`/companies/${company.id}`)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton 
+                      aria-label="delete"
+                      onClick={() => handleDeleteClick(company)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

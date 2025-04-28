@@ -24,7 +24,6 @@ import EmailIcon from '@mui/icons-material/Email';
 import SlackIcon from '@mui/icons-material/AlternateEmail';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import PeopleIcon from '@mui/icons-material/People';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import businessService from '../services/businessService';
 import { Company } from '../types';
@@ -89,12 +88,6 @@ export default function CompanyDetail() {
     setConfirmDialogOpen(false);
   };
 
-  const navigateToProviders = () => {
-    if (id) {
-      navigate(`/companies/${id}/providers`);
-    }
-  };
-
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -132,14 +125,6 @@ export default function CompanyDetail() {
           Back to Companies
         </Button>
         <Box display="flex" gap={2}>
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<PeopleIcon />}
-            onClick={navigateToProviders}
-          >
-            View Providers
-          </Button>
           {!isEditing ? (
             <Button 
               variant="contained" 
