@@ -1,5 +1,13 @@
 import api from './api';
-import { Company, QueryParams, BusinessResponse } from '../types';
+import { Company, QueryParams, BusinessResponse, BusinessDetail } from '../types';
+
+// Get the environment part of the URL
+const getEnvPrefix = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  if (apiUrl.includes('api-dev')) return 'dev';
+  if (apiUrl.includes('api.')) return 'app';
+  return 'dev'; // Default to dev if not found
+};
 
 export const businessService = {
   // Get all companies
@@ -9,9 +17,14 @@ export const businessService = {
   },
 
   // Get a single company by ID
-  getCompany: async (id: string): Promise<Company> => {
-    const response = await api.get(`/business/${id}`);
-    return response.data;
+  getCompany: async (id: string): Promise<BusinessDetail> => {
+    const env = getEnvPrefix();
+    // Use a direct fetch to the specific URL format
+    const response = await fetch(`https://${env}.string.tec.br/business/${id}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch business: ${response.statusText}`);
+    }
+    return response.json();
   },
 
   // Create a new company
@@ -21,9 +34,21 @@ export const businessService = {
   },
 
   // Update an existing company
-  updateCompany: async (id: string, data: Partial<Company>): Promise<Company> => {
-    const response = await api.put(`/business/${id}`, data);
-    return response.data;
+  updateCompany: async (id: string, data: Partial<BusinessDetail>): Promise<BusinessDetail> => {
+    const env = getEnvPrefix();
+    const response = await fetch(`https://${env}.string.tec.br/business/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to update business: ${response.statusText}`);
+    }
+    
+    return response.json();
   },
 
   // Delete a company
