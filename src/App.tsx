@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import ItemList from './pages/ItemList';
 import Settings from './pages/Settings';
 import Companies from './pages/Companies';
+import CompanyDetail from './pages/CompanyDetail';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 
@@ -47,6 +48,7 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               {/* Business Routes */}
               <Route path="/companies" element={<Companies />} />
+              <Route path="/companies/:id" element={<CompanyDetail />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/contracts" element={<Contracts />} />
             </Routes>
@@ -56,5 +58,7 @@ function App() {
     </QueryClientProvider>
   );
 }
+
+export default App;
 
 export default App;

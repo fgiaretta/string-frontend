@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Typography, 
   Box, 
@@ -23,11 +24,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import EmailIcon from '@mui/icons-material/Email';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useQuery } from '@tanstack/react-query';
 import { Company } from '../types';
 import businessService from '../services/businessService';
 
 export default function Companies() {
+  const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
@@ -57,6 +60,10 @@ export default function Companies() {
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedCompany(null);
+  };
+
+  const handleViewDetails = (id: string) => {
+    navigate(`/companies/${id}`);
   };
 
   if (isLoading) {
@@ -137,8 +144,14 @@ export default function Companies() {
                 <TableCell>{company.slackChannel || '-'}</TableCell>
                 <TableCell align="right">
                   <IconButton 
+                    aria-label="view"
+                    onClick={() => handleViewDetails(company.id)}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                  <IconButton 
                     aria-label="edit"
-                    // onClick={() => navigate(`/companies/edit/${company.id}`)}
+                    onClick={() => navigate(`/companies/${company.id}`)}
                   >
                     <EditIcon />
                   </IconButton>
