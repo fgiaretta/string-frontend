@@ -1,4 +1,4 @@
-import { Appointment } from '../types';
+import { Appointment, TimeSlot } from '../types';
 
 // Get the environment part of the URL
 const getEnvPrefix = () => {
@@ -33,6 +33,28 @@ export const scheduleService = {
       ...appointment,
       isAllDay: appointment.start === null && appointment.end === null
     }));
+  },
+
+  // Get available time slots for a specific date
+  getAvailableTimeSlots: async (
+    businessId: string,
+    providerId: string,
+    date: string
+  ): Promise<TimeSlot[]> => {
+    const env = getEnvPrefix();
+    const url = `https://${env}.string.tec.br/business/${businessId}/appointment/${providerId}/timeslots/${date}`;
+    
+    console.log(`Fetching available time slots from: ${url}`);
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch available time slots: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('Available time slots API response:', data);
+    
+    return data;
   }
 };
 

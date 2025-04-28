@@ -75,3 +75,9 @@ export interface Appointment {
   end: string | null;
   isAllDay?: boolean;
 }
+
+// Available time slot
+export interface TimeSlot {
+  start: string;
+  end: string;
+}
