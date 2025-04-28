@@ -12,12 +12,16 @@ import {
   ListItemIcon, 
   ListItemText, 
   Toolbar, 
-  Typography 
+  Typography,
+  ListSubheader
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
+import BusinessIcon from '@mui/icons-material/Business';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { Link, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -34,9 +38,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
     setMobileOpen(!mobileOpen);
   };
 
-  const menuItems = [
+  const generalMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Items', icon: <PeopleIcon />, path: '/items' },
+  ];
+
+  const businessMenuItems = [
+    { text: 'Companies', icon: <BusinessIcon />, path: '/companies' },
+    { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
+    { text: 'Contracts', icon: <AssignmentIcon />, path: '/contracts' },
+  ];
+
+  const settingsMenuItems = [
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
@@ -49,7 +62,47 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </Toolbar>
       <Divider />
       <List>
-        {menuItems.map((item) => (
+        {generalMenuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton 
+              component={Link} 
+              to={item.path}
+              selected={location.pathname === item.path}
+            >
+              <ListItemIcon>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <List
+        subheader={
+          <ListSubheader component="div" id="business-section-subheader">
+            Business
+          </ListSubheader>
+        }
+      >
+        {businessMenuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton 
+              component={Link} 
+              to={item.path}
+              selected={location.pathname === item.path}
+            >
+              <ListItemIcon>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <List>
+        {settingsMenuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton 
               component={Link} 

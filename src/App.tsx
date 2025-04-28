@@ -7,6 +7,9 @@ import MainLayout from './components/Layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import ItemList from './pages/ItemList';
 import Settings from './pages/Settings';
+import Companies from './pages/Companies';
+import Reports from './pages/Reports';
+import Contracts from './pages/Contracts';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -42,6 +45,10 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/items" element={<ItemList />} />
               <Route path="/settings" element={<Settings />} />
+              {/* Business Routes */}
+              <Route path="/companies" element={<Companies />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/contracts" element={<Contracts />} />
             </Routes>
           </MainLayout>
         </BrowserRouter>
@@ -49,5 +56,7 @@ function App() {
     </QueryClientProvider>
   );
 }
+
+export default App;
 
 export default App;
