@@ -24,6 +24,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import SlackIcon from '@mui/icons-material/AlternateEmail';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import PeopleIcon from '@mui/icons-material/People';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import businessService from '../services/businessService';
 import { Company } from '../types';
@@ -88,6 +89,12 @@ export default function CompanyDetail() {
     setConfirmDialogOpen(false);
   };
 
+  const navigateToProviders = () => {
+    if (id) {
+      navigate(`/companies/${id}/providers`);
+    }
+  };
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -124,37 +131,46 @@ export default function CompanyDetail() {
         >
           Back to Companies
         </Button>
-        {!isEditing ? (
-          <Button 
-            variant="contained" 
-            color="primary" 
-            startIcon={<EditIcon />}
-            onClick={() => setIsEditing(true)}
+        <Box display="flex" gap={2}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<PeopleIcon />}
+            onClick={navigateToProviders}
           >
-            Edit
+            View Providers
           </Button>
-        ) : (
-          <Box>
-            <Button 
-              variant="outlined" 
-              color="error" 
-              startIcon={<CancelIcon />}
-              onClick={handleCancel}
-              sx={{ mr: 1 }}
-            >
-              Cancel
-            </Button>
+          {!isEditing ? (
             <Button 
               variant="contained" 
               color="primary" 
-              startIcon={<SaveIcon />}
-              onClick={handleSave}
-              disabled={updateMutation.isPending}
+              startIcon={<EditIcon />}
+              onClick={() => setIsEditing(true)}
             >
-              Save
+              Edit
             </Button>
-          </Box>
-        )}
+          ) : (
+            <>
+              <Button 
+                variant="outlined" 
+                color="error" 
+                startIcon={<CancelIcon />}
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                startIcon={<SaveIcon />}
+                onClick={handleSave}
+                disabled={updateMutation.isPending}
+              >
+                Save
+              </Button>
+            </>
+          )}
+        </Box>
       </Box>
 
       <Typography variant="h4" gutterBottom>

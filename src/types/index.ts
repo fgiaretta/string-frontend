@@ -42,3 +42,21 @@ export interface BusinessResponse {
   businesses: Company[];
   count: number;
 }
+
+// Provider type
+export interface Provider {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  specialty?: string;
+  status?: 'active' | 'inactive';
+  createdAt?: string;
+  businessId: string;
+}
+
+// Provider list response
+export interface ProviderListResponse {
+  providers: Provider[];
+  count: number;
+}
