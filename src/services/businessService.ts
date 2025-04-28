@@ -4,9 +4,9 @@ import { Company, QueryParams, BusinessResponse, BusinessDetail } from '../types
 // Get the environment part of the URL
 const getEnvPrefix = () => {
   const apiUrl = import.meta.env.VITE_API_URL || '';
-  if (apiUrl.includes('api-dev')) return 'dev';
-  if (apiUrl.includes('api.')) return 'app';
-  return 'dev'; // Default to dev if not found
+  if (apiUrl.includes('api-dev')) return 'api-dev';
+  if (apiUrl.includes('api.')) return 'api';
+  return 'api-dev'; // Default to dev if not found
 };
 
 export const businessService = {
