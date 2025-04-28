@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Typography, 
@@ -40,6 +40,7 @@ export default function BusinessProviders() {
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [providers, setProviders] = useState<Provider[]>([]);
 
   // Fetch business data
   const { 
@@ -65,6 +66,21 @@ export default function BusinessProviders() {
     queryFn: () => businessId ? providerService.getProviders(businessId) : Promise.reject('No business ID provided'),
     enabled: !!businessId
   });
+
+  // Update providers state when data is fetched
+  useEffect(() => {
+    console.log('Providers data received:', providersData);
+    if (providersData && Array.isArray(providersData)) {
+      console.log('Setting providers from array:', providersData);
+      setProviders(providersData);
+    } else if (providersData && providersData.providers && Array.isArray(providersData.providers)) {
+      console.log('Setting providers from object.providers:', providersData.providers);
+      setProviders(providersData.providers);
+    } else {
+      console.log('No valid providers data found, setting empty array');
+      setProviders([]);
+    }
+  }, [providersData]);
 
   // Delete provider mutation
   const deleteMutation = useMutation({
@@ -175,8 +191,8 @@ export default function BusinessProviders() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {providersData?.providers && providersData.providers.length > 0 ? (
-              providersData.providers.map((provider) => (
+            {providers && providers.length > 0 ? (
+              providers.map((provider) => (
                 <TableRow key={provider.id}>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={2}>
