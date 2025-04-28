@@ -11,15 +11,8 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
   Chip,
-  TextField,
   Avatar,
-  Tabs,
-  Tab,
   Stack
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -38,37 +31,10 @@ import { Appointment, TimeSlot } from '../types';
 import scheduleService from '../services/scheduleService';
 import providerService from '../services/providerService';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`schedule-tabpanel-${index}`}
-      aria-labelledby={`schedule-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
 export default function ProviderSchedule() {
   const { businessId, providerId } = useParams<{ businessId: string, providerId: string }>();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [tabValue, setTabValue] = useState(0);
 
   // Format date for API call (YYYY-MM-DD)
   const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
@@ -119,10 +85,6 @@ export default function ProviderSchedule() {
 
   const handleDateChange = (date: Date | null) => {
     setSelectedDate(date);
-  };
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
   };
 
   const formatAppointmentTime = (appointment: Appointment) => {
@@ -276,26 +238,39 @@ export default function ProviderSchedule() {
                   slotProps={{ textField: { fullWidth: true } }}
                 />
               </LocalizationProvider>
+              <Box display="flex" justifyContent="space-between" mt={2}>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => {
+                    if (selectedDate) {
+                      const prevDay = new Date(selectedDate);
+                      prevDay.setDate(prevDay.getDate() - 1);
+                      setSelectedDate(prevDay);
+                    }
+                  }}
+                >
+                  Previous Day
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => {
+                    if (selectedDate) {
+                      const nextDay = new Date(selectedDate);
+                      nextDay.setDate(nextDay.getDate() + 1);
+                      setSelectedDate(nextDay);
+                    }
+                  }}
+                >
+                  Next Day
+                </Button>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         <Grid item xs={12} md={8}>
           <Card>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs 
-                value={tabValue} 
-                onChange={handleTabChange} 
-                aria-label="schedule tabs"
-                variant="fullWidth"
-              >
-                <Tab label="Combined View" />
-                <Tab label="Appointments" />
-                <Tab label="Available Slots" />
-              </Tabs>
-            </Box>
-
-            <TabPanel value={tabValue} index={0}>
+            <CardContent>
               <Typography variant="h6" gutterBottom>
                 Schedule for {format(selectedDate || new Date(), 'MMMM d, yyyy')}
               </Typography>
@@ -400,111 +375,7 @@ export default function ProviderSchedule() {
                   </Typography>
                 </Box>
               )}
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={1}>
-              <Typography variant="h6" gutterBottom>
-                Appointments for {format(selectedDate || new Date(), 'MMMM d, yyyy')}
-              </Typography>
-              
-              {schedule && schedule.length > 0 ? (
-                <List>
-                  {schedule.map((appointment: Appointment) => (
-                    <Paper key={appointment.id} elevation={1} sx={{ mb: 2, overflow: 'hidden' }}>
-                      <ListItem
-                        secondaryAction={
-                          <Chip 
-                            label={appointment.status} 
-                            color={getStatusColor(appointment.status) as any}
-                            size="small"
-                          />
-                        }
-                      >
-                        <ListItemIcon>
-                          {appointment.isAllDay ? <TodayIcon color="primary" /> : <EventIcon color="primary" />}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={appointment.summary}
-                          secondary={
-                            <Box>
-                              <Box display="flex" alignItems="center" gap={1}>
-                                <AccessTimeIcon fontSize="small" />
-                                <Typography variant="body2">
-                                  {formatAppointmentTime(appointment)}
-                                </Typography>
-                              </Box>
-                              {appointment.location && (
-                                <Box display="flex" alignItems="center" gap={1} mt={0.5}>
-                                  <LocationOnIcon fontSize="small" />
-                                  <Typography variant="body2">
-                                    {appointment.location}
-                                  </Typography>
-                                </Box>
-                              )}
-                            </Box>
-                          }
-                        />
-                      </ListItem>
-                    </Paper>
-                  ))}
-                </List>
-              ) : (
-                <Box display="flex" flexDirection="column" alignItems="center" py={4}>
-                  <EventBusyIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="h6" color="text.secondary">
-                    No appointments scheduled
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    There are no appointments scheduled for this date.
-                  </Typography>
-                </Box>
-              )}
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={2}>
-              <Typography variant="h6" gutterBottom>
-                Available Slots for {format(selectedDate || new Date(), 'MMMM d, yyyy')}
-              </Typography>
-              
-              {availableSlots && availableSlots.length > 0 ? (
-                <Grid container spacing={2}>
-                  {availableSlots.map((slot: TimeSlot, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
-                      <Paper 
-                        elevation={1} 
-                        sx={{ 
-                          p: 2, 
-                          textAlign: 'center',
-                          bgcolor: '#e8f5e9',
-                          border: '1px solid #c8e6c9',
-                          '&:hover': {
-                            bgcolor: '#c8e6c9',
-                            cursor: 'pointer'
-                          }
-                        }}
-                      >
-                        <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
-                          <AccessTimeIcon color="success" />
-                          <Typography>
-                            {formatTimeSlot(slot)}
-                          </Typography>
-                        </Box>
-                      </Paper>
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Box display="flex" flexDirection="column" alignItems="center" py={4}>
-                  <EventBusyIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="h6" color="text.secondary">
-                    No available slots
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    There are no available appointment slots for this date.
-                  </Typography>
-                </Box>
-              )}
-            </TabPanel>
+            </CardContent>
           </Card>
         </Grid>
       </Grid>

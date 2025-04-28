@@ -168,7 +168,7 @@ export default function Companies() {
             variant="contained" 
             color="primary" 
             startIcon={<AddIcon />}
-            // onClick={() => navigate('/companies/new')}
+            onClick={() => navigate('/companies/new')}
           >
             Add Company
           </Button>

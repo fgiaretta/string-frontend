@@ -167,7 +167,7 @@ export default function BusinessProviders() {
         <Box display="flex" alignItems="center" gap={2}>
           <Button 
             startIcon={<ArrowBackIcon />} 
-            onClick={() => navigate(`/companies/${businessId}`)}
+            onClick={() => navigate(`/companies`)}
           >
             Back to Business
           </Button>

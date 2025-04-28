@@ -58,5 +58,3 @@ export const businessService = {
 };
 
 export default businessService;
-
-export default businessService;
