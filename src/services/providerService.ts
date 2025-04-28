@@ -86,6 +86,31 @@ export const providerService = {
     if (!response.ok) {
       throw new Error(`Failed to delete provider: ${response.statusText}`);
     }
+  },
+
+  // Update provider's business
+  updateProviderBusiness: async (
+    defaultBusinessId: string, 
+    providerId: string, 
+    newBusinessId: string
+  ): Promise<Provider> => {
+    const env = getEnvPrefix();
+    const response = await fetch(
+      `https://${env}.string.tec.br/business/${defaultBusinessId}/provider/${providerId}/update-business`, 
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ newBusinessId }),
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Failed to update provider's business: ${response.statusText}`);
+    }
+    
+    return response.json();
   }
 };
 

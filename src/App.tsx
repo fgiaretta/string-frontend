@@ -10,6 +10,7 @@ import Settings from './pages/Settings';
 import Companies from './pages/Companies';
 import CompanyDetail from './pages/CompanyDetail';
 import BusinessProviders from './pages/BusinessProviders';
+import DefaultProviders from './pages/DefaultProviders';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 
@@ -51,6 +52,7 @@ function App() {
               <Route path="/companies" element={<Companies />} />
               <Route path="/companies/:id" element={<CompanyDetail />} />
               <Route path="/companies/:businessId/providers" element={<BusinessProviders />} />
+              <Route path="/providers/unassigned" element={<DefaultProviders />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/contracts" element={<Contracts />} />
             </Routes>

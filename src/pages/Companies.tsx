@@ -30,6 +30,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import GoogleIcon from '@mui/icons-material/Google';
+import PeopleIcon from '@mui/icons-material/People';
 import { useQuery } from '@tanstack/react-query';
 import { Company } from '../types';
 import businessService from '../services/businessService';
@@ -101,6 +102,10 @@ export default function Companies() {
     setSnackbarOpen(false);
   };
 
+  const navigateToUnassignedProviders = () => {
+    navigate('/providers/unassigned');
+  };
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -134,6 +139,16 @@ export default function Companies() {
           Companies
         </Typography>
         <Box display="flex" gap={2}>
+          <Tooltip title="View unassigned providers">
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              startIcon={<PeopleIcon />}
+              onClick={navigateToUnassignedProviders}
+            >
+              Unassigned Providers
+            </Button>
+          </Tooltip>
           <Tooltip title="Copy Google Auth Provider URL">
             <Button 
               variant="outlined" 
