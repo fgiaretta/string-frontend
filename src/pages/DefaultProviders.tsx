@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Typography, 
@@ -53,6 +53,7 @@ export default function DefaultProviders() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [providers, setProviders] = useState<Provider[]>([]);
 
   // Fetch providers data
   const { 
@@ -65,6 +66,17 @@ export default function DefaultProviders() {
     queryKey: ['providers', DEFAULT_BUSINESS_ID],
     queryFn: () => providerService.getProviders(DEFAULT_BUSINESS_ID),
   });
+
+  // Update providers state when data is fetched
+  useEffect(() => {
+    if (providersData && Array.isArray(providersData)) {
+      setProviders(providersData);
+    } else if (providersData && providersData.providers && Array.isArray(providersData.providers)) {
+      setProviders(providersData.providers);
+    } else {
+      setProviders([]);
+    }
+  }, [providersData]);
 
   // Fetch all businesses for the dropdown
   const {
@@ -168,6 +180,10 @@ export default function DefaultProviders() {
   const isError = isErrorProviders || isErrorBusinesses;
   const error = errorProviders || errorBusinesses;
 
+  // Debug logging
+  console.log('Providers data:', providersData);
+  console.log('Providers array:', providers);
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -228,8 +244,8 @@ export default function DefaultProviders() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {providersData?.providers && providersData.providers.length > 0 ? (
-              providersData.providers.map((provider) => (
+            {providers && providers.length > 0 ? (
+              providers.map((provider) => (
                 <TableRow key={provider.id}>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={2}>

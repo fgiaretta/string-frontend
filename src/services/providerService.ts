@@ -10,7 +10,7 @@ const getEnvPrefix = () => {
 
 export const providerService = {
   // Get all providers for a business
-  getProviders: async (businessId: string, params?: QueryParams): Promise<ProviderListResponse> => {
+  getProviders: async (businessId: string, params?: QueryParams): Promise<Provider[] | ProviderListResponse> => {
     const env = getEnvPrefix();
     const url = new URL(`https://${env}.string.tec.br/business/${businessId}/provider`);
     
@@ -23,11 +23,14 @@ export const providerService = {
       });
     }
     
+    console.log(`Fetching providers from: ${url.toString()}`);
     const response = await fetch(url.toString());
     if (!response.ok) {
       throw new Error(`Failed to fetch providers: ${response.statusText}`);
     }
-    return response.json();
+    const data = await response.json();
+    console.log('Provider API response:', data);
+    return data;
   },
 
   // Get a single provider
