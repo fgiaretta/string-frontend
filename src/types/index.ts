@@ -25,3 +25,17 @@ export interface QueryParams {
   search?: string;
   [key: string]: any;
 }
+
+// Company type for the Companies component
+export interface Company {
+  id: string;
+  name: string;
+  description?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
