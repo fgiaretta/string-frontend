@@ -7,6 +7,7 @@ A React-based frontend application for managing internal data through CRUD opera
 - Dashboard with overview metrics
 - Item management (Create, Read, Update, Delete)
 - Settings configuration
+- Business section with Companies, Reports, and Contracts
 - Responsive design for desktop and mobile
 - Material UI components
 - React Query for data fetching and caching
@@ -31,7 +32,8 @@ npm install
 3. Configure the API URL in the `.env` file:
 
 ```
-VITE_API_URL=http://your-api-url
+# Default configuration
+VITE_API_URL=https://api-dev.string.tec.br
 ```
 
 4. Start the development server:
@@ -39,6 +41,14 @@ VITE_API_URL=http://your-api-url
 ```bash
 npm run dev
 ```
+
+## Environment Configuration
+
+The application uses different environment files:
+
+- `.env`: Default environment variables
+- `.env.development`: Development-specific variables (API URL: https://api-dev.string.tec.br)
+- `.env.production`: Production-specific variables (API URL: https://api.string.tec.br)
 
 ## Project Structure
 
