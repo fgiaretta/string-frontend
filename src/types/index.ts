@@ -64,3 +64,14 @@ export interface ProviderListResponse {
   providers: Provider[];
   count?: number;
 }
+
+// Appointment type
+export interface Appointment {
+  id: string;
+  status: 'confirmed' | 'tentative' | 'cancelled';
+  summary: string;
+  location?: string;
+  start: string | null;
+  end: string | null;
+  isAllDay?: boolean;
+}

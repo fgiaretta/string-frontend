@@ -19,7 +19,8 @@ import {
   DialogContentText,
   DialogTitle,
   Chip,
-  Avatar
+  Avatar,
+  Tooltip
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,6 +29,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EmailIcon from '@mui/icons-material/Email';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import EventIcon from '@mui/icons-material/Event';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Provider } from '../types';
 import providerService from '../services/providerService';
@@ -109,6 +111,12 @@ export default function BusinessProviders() {
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedProvider(null);
+  };
+
+  const navigateToSchedule = (providerId: string) => {
+    if (businessId) {
+      navigate(`/companies/${businessId}/providers/${providerId}/schedule`);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -243,6 +251,15 @@ export default function BusinessProviders() {
                     {provider.createdAt && formatDate(provider.createdAt)}
                   </TableCell>
                   <TableCell align="right">
+                    <Tooltip title="View Schedule">
+                      <IconButton 
+                        aria-label="schedule"
+                        color="primary"
+                        onClick={() => navigateToSchedule(provider.id)}
+                      >
+                        <EventIcon />
+                      </IconButton>
+                    </Tooltip>
                     <IconButton 
                       aria-label="edit"
                       // onClick={() => navigate(`/companies/${businessId}/providers/${provider.id}`)}
