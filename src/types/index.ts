@@ -30,12 +30,15 @@ export interface QueryParams {
 export interface Company {
   id: string;
   name: string;
-  description?: string;
-  address?: string;
-  phone?: string;
   email?: string;
-  website?: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
+  slackChannel?: string;
+  whatsappId?: string;
+  whatsappName?: string;
+  whatsappDisplayNumber?: string;
+}
+
+// Business API response format
+export interface BusinessResponse {
+  businesses: Company[];
+  count: number;
 }

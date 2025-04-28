@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Typography, 
   Box, 
@@ -11,7 +11,6 @@ import {
   TableRow,
   Button,
   CircularProgress,
-  Chip,
   IconButton,
   Dialog,
   DialogActions,
@@ -22,6 +21,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import EmailIcon from '@mui/icons-material/Email';
 import { useQuery } from '@tanstack/react-query';
 import { Company } from '../types';
 import businessService from '../services/businessService';
@@ -105,29 +106,35 @@ export default function Companies() {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>WhatsApp</TableCell>
+              <TableCell>Slack Channel</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.data.map((company) => (
+            {data?.businesses.map((company) => (
               <TableRow key={company.id}>
                 <TableCell component="th" scope="row">
                   {company.name}
                 </TableCell>
-                <TableCell>{company.description || '-'}</TableCell>
-                <TableCell>{company.email || '-'}</TableCell>
-                <TableCell>{company.phone || '-'}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={company.status} 
-                    color={company.status === 'active' ? 'success' : 'default'} 
-                    size="small" 
-                  />
+                  {company.email ? (
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <EmailIcon fontSize="small" color="action" />
+                      {company.email}
+                    </Box>
+                  ) : '-'}
                 </TableCell>
+                <TableCell>
+                  {company.whatsappDisplayNumber ? (
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <WhatsAppIcon fontSize="small" color="success" />
+                      {company.whatsappDisplayNumber}
+                    </Box>
+                  ) : '-'}
+                </TableCell>
+                <TableCell>{company.slackChannel || '-'}</TableCell>
                 <TableCell align="right">
                   <IconButton 
                     aria-label="edit"
@@ -144,9 +151,9 @@ export default function Companies() {
                 </TableCell>
               </TableRow>
             ))}
-            {data?.data.length === 0 && (
+            {(!data?.businesses || data.businesses.length === 0) && (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={5} align="center">
                   <Typography variant="body1" sx={{ py: 2 }}>
                     No companies found
                   </Typography>
