@@ -398,7 +398,100 @@ export const darkTheme: ThemeOptions = {
           borderRight: 'none',
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
           backgroundColor: '#1f2937',
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#1f2937',
         },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    MuiPopover: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+          },
+    MuiSnackbar: {
+      styleOverrides: {
+        root: {
+          '& .MuiPaper-root': {
+            backgroundColor: '#1f2937',
+          },
+        },
+      },
+    },
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(59, 130, 246, 0.16)',
+            '&:hover': {
+              backgroundColor: 'rgba(59, 130, 246, 0.24)',
+            },
+          },
+        },
+      },
+    },        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: '#374151',
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },        },
       },
     },
     MuiDivider: {
