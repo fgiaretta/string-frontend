@@ -343,7 +343,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          bgcolor: '#f8f9fa',
+          bgcolor: (theme) => theme.palette.background.default,
           minHeight: '100vh',
         }}
       >

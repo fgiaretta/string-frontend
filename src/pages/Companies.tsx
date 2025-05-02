@@ -259,7 +259,7 @@ export default function Companies() {
   }
 
   return (
-    <Box p={3}>
+    <Box p={3} sx={{ bgcolor: (theme) => theme.palette.background.default, minHeight: '100vh' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1">
           Companies

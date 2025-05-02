@@ -458,7 +458,13 @@ export const darkTheme: ThemeOptions = {
       styleOverrides: {
         root: {
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    MuiTableContainer: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },            backgroundColor: 'rgba(255, 255, 255, 0.04)',
           },
           '&.Mui-selected': {
             backgroundColor: 'rgba(59, 130, 246, 0.16)',
