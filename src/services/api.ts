@@ -1,9 +1,21 @@
 import axios from 'axios';
 import authService from './authService';
 
-// Create axios instance with base URL from environment variables
+// Get API URL from localStorage or use the default from environment variables
+const getApiUrl = (): string => {
+  const storedEnv = localStorage.getItem('apiEnvironment');
+  if (storedEnv === 'production') {
+    return 'https://api.string.tec.br';
+  } else if (storedEnv === 'development') {
+    return 'https://api-dev.string.tec.br';
+  }
+  // Default to environment variable if no stored preference
+  return import.meta.env.VITE_API_URL;
+};
+
+// Create axios instance with base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: getApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

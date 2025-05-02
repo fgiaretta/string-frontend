@@ -21,7 +21,8 @@ import {
   useMediaQuery,
   useTheme,
   Collapse,
-  Badge
+  Badge,
+  Stack
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -39,7 +40,9 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ThemeToggle from '../ThemeToggle';
+import EnvironmentToggle from '../EnvironmentToggle';
 import { useAuth } from '../../context/AuthContext';
+import { useApiEnvironment } from '../../context/ApiEnvironmentContext';
 
 const drawerWidth = 260;
 
@@ -299,7 +302,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </Badge>
               </IconButton>
             </Tooltip>
-            <ThemeToggle sx={{ mr: 1.5 }} />
+            <Stack direction="row" spacing={1} sx={{ mr: 1.5 }}>
+              <EnvironmentToggle />
+              <ThemeToggle />
+            </Stack>
             <Tooltip title="Help">
               <IconButton sx={{ mr: 2.5 }}>
                 <HelpOutlineIcon />
