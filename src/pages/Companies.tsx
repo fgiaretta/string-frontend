@@ -46,7 +46,8 @@ export default function Companies() {
   const [listAdminsDialogOpen, setListAdminsDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [companyAdmins, setCompanyAdmins] = useState<any[]>([]);
-  const [loadingAdmins, setLoadingAdmins] = useState(false);
+  const [deleteAdminDialogOpen, setDeleteAdminDialogOpen] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<any>(null);  const [loadingAdmins, setLoadingAdmins] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
@@ -192,7 +193,38 @@ export default function Companies() {
       setSnackbarOpen(true);
     }
   };
+  const handleDeleteAdminClick = (admin: any) => {
+    setSelectedAdmin(admin);
+    setDeleteAdminDialogOpen(true);
+  };
 
+  const handleDeleteAdminCancel = () => {
+    setDeleteAdminDialogOpen(false);
+    setSelectedAdmin(null);
+  };
+
+  const handleDeleteAdminConfirm = async () => {
+    if (!selectedCompany || !selectedAdmin) return;
+    
+    try {
+      await businessService.deleteCompanyAdmin(selectedCompany.id, selectedAdmin.id);
+      
+      // Remove the deleted admin from the list
+      setCompanyAdmins(companyAdmins.filter(admin => admin.id !== selectedAdmin.id));
+      
+      setSnackbarMessage(`Admin ${selectedAdmin.name || selectedAdmin.email} removed successfully`);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error deleting admin:', error);
+      setSnackbarMessage(`Failed to delete admin: ${(error as Error).message || 'Unknown error'}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    } finally {
+      setDeleteAdminDialogOpen(false);
+      setSelectedAdmin(null);
+    }
+  };
   const handleAdminDataChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setAdminData({
       ...adminData,
@@ -394,6 +426,7 @@ export default function Companies() {
                     <TableCell>Name</TableCell>
                     <TableCell>Email</TableCell>
                     <TableCell>WhatsApp</TableCell>
+                    <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -408,6 +441,18 @@ export default function Companies() {
                             {admin.whatsappDisplayNumber}
                           </Box>
                         ) : '-'}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Delete Admin">
+                          <IconButton 
+                            aria-label="delete-admin"
+                            onClick={() => handleDeleteAdminClick(admin)}
+                            color="error"
+                            size="small"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -518,6 +563,26 @@ export default function Companies() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
+      {/* Delete Admin Confirmation Dialog */}
+      <Dialog
+        open={deleteAdminDialogOpen}
+        onClose={handleDeleteAdminCancel}
+        aria-labelledby="delete-admin-dialog-title"
+      >
+        <DialogTitle id="delete-admin-dialog-title">
+          Remove Admin
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to remove {selectedAdmin?.name || selectedAdmin?.email || 'this admin'} from {selectedCompany?.name}? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteAdminCancel}>Cancel</Button>
+          <Button onClick={handleDeleteAdminConfirm} color="error">Remove</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
