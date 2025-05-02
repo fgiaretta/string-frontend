@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import MainLayout from './components/Layout/MainLayout';
@@ -16,8 +15,8 @@ import ProviderSchedule from './pages/ProviderSchedule';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 
-// Import custom theme and global styles
-import theme from './theme';
+// Import theme provider and global styles
+import { ThemeProvider } from './context/ThemeContext';
 import './styles/globalStyles.css';
 
 // Create a client
@@ -33,7 +32,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider>
         <CssBaseline />
         <BrowserRouter>
           <MainLayout>

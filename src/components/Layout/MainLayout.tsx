@@ -37,6 +37,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ThemeToggle from '../ThemeToggle';
 
 const drawerWidth = 260;
 
@@ -76,14 +77,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { text: 'Items', icon: <ListAltIcon />, path: '/items' },
     {
       text: 'Business',
       icon: <BusinessIcon />,
       submenu: [
         { text: 'Companies', path: '/companies' },
-        { text: 'Reports', path: '/reports' },
-        { text: 'Contracts', path: '/contracts' },
       ],
     },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
@@ -95,9 +93,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between',
-        px: [1],
-        py: 1.5,
-        borderBottom: `1px solid ${theme.palette.divider}`
+        px: [2],
+        py: 2,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
         <Box display="flex" alignItems="center">
           <Typography
@@ -105,17 +104,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
             noWrap
             component="div"
             sx={{
-              fontWeight: 600,
+              fontWeight: 700,
               color: theme.palette.primary.main,
               display: 'flex',
               alignItems: 'center',
+              letterSpacing: '-0.5px'
             }}
           >
             <Box 
               component="img" 
               src="/logo.svg" 
               alt="Logo" 
-              sx={{ height: 32, mr: 1 }} 
+              sx={{ height: 36, mr: 1.5 }} 
             />
             Control Panel
           </Typography>
@@ -125,8 +125,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </IconButton>
       </Toolbar>
       <Divider />
-      <Box sx={{ overflow: 'auto', flexGrow: 1, py: 2 }}>
-        <List component="nav" sx={{ px: 2 }}>
+      <Box sx={{ overflow: 'auto', flexGrow: 1, py: 2.5 }}>
+        <List component="nav" sx={{ px: 2.5 }}>
           {menuItems.map((item) => 
             item.submenu ? (
               <Box key={item.text}>
@@ -134,9 +134,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <ListItemButton
                     onClick={handleBusinessSubmenuToggle}
                     sx={{
-                      borderRadius: 1,
+                      borderRadius: 1.5,
                       mb: 0.5,
                       bgcolor: businessSubmenuOpen ? `${theme.palette.primary.main}14` : 'transparent',
+                      '&:hover': {
+                        bgcolor: businessSubmenuOpen ? `${theme.palette.primary.main}20` : `rgba(0, 0, 0, 0.04)`,
+                      },
+                      transition: 'background-color 0.2s ease'
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 40 }}>
@@ -154,9 +158,19 @@ export default function MainLayout({ children }: MainLayoutProps) {
                           onClick={() => navigate(subItem.path)}
                           selected={isActive(subItem.path)}
                           sx={{
-                            borderRadius: 1,
+                            borderRadius: 1.5,
                             mb: 0.5,
                             pl: 2,
+                            '&.Mui-selected': {
+                              bgcolor: `${theme.palette.primary.main}14`,
+                              '&:hover': {
+                                bgcolor: `${theme.palette.primary.main}20`,
+                              }
+                            },
+                            '&:hover': {
+                              bgcolor: 'rgba(0, 0, 0, 0.04)',
+                            },
+                            transition: 'background-color 0.2s ease'
                           }}
                         >
                           <ListItemText primary={subItem.text} />
@@ -172,8 +186,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   onClick={() => navigate(item.path)}
                   selected={isActive(item.path)}
                   sx={{
-                    borderRadius: 1,
+                    borderRadius: 1.5,
                     mb: 0.5,
+                    '&.Mui-selected': {
+                      bgcolor: `${theme.palette.primary.main}14`,
+                      '&:hover': {
+                        bgcolor: `${theme.palette.primary.main}20`,
+                      }
+                    },
+                    '&:hover': {
+                      bgcolor: 'rgba(0, 0, 0, 0.04)',
+                    },
+                    transition: 'background-color 0.2s ease'
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 40 }}>
@@ -186,11 +210,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
           )}
         </List>
       </Box>
-      <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+      <Box sx={{ p: 2.5, borderTop: `1px solid ${theme.palette.divider}` }}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1, opacity: 0.8 }}>
           © 2025 String Technologies
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8 }}>
           v1.0.0
         </Typography>
       </Box>
@@ -205,7 +229,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           zIndex: theme.zIndex.drawer + 1,
           backgroundColor: '#ffffff',
           color: 'text.primary',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
         }}
       >
         <Toolbar>
@@ -233,14 +257,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Notifications">
-              <IconButton sx={{ mr: 1 }}>
+              <IconButton sx={{ mr: 1.5 }}>
                 <Badge badgeContent={3} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
             </Tooltip>
+            <ThemeToggle sx={{ mr: 1.5 }} />
             <Tooltip title="Help">
-              <IconButton sx={{ mr: 2 }}>
+              <IconButton sx={{ mr: 2.5 }}>
                 <HelpOutlineIcon />
               </IconButton>
             </Tooltip>
@@ -300,6 +325,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            boxShadow: '1px 0 5px rgba(0,0,0,0.05)',
+            border: 'none'
           },
         }}
       >
@@ -309,19 +336,19 @@ export default function MainLayout({ children }: MainLayoutProps) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { md: `calc(100% - ${open ? drawerWidth : 0}px)` },
           ml: { md: open ? `${drawerWidth}px` : 0 },
           transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          bgcolor: 'background.default',
+          bgcolor: '#f8f9fa',
           minHeight: '100vh',
         }}
       >
         <Toolbar />
-        <Container maxWidth="xl" sx={{ mt: 2 }} className="fade-in">
+        <Container maxWidth="xl" sx={{ mt: 3, mb: 4, px: { xs: 2, sm: 3, md: 4 } }} className="fade-in">
           {children}
         </Container>
       </Box>
