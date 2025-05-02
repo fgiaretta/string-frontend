@@ -51,10 +51,40 @@ export const businessService = {
     return response.json();
   },
 
+  // Add an admin to a company
+  addCompanyAdmin: async (businessId: string, adminData: {
+    name: string;
+    email: string;
+    whatsappId: string;
+    whatsappName: string;
+    whatsappDisplayNumber: string;
+  }): Promise<void> => {
+    try {
+      // Use the api instance which already has the token handling
+      await api.post(`/business/${businessId}/admin`, adminData);
+      
+      console.log('Admin added successfully');
+    } catch (error) {
+      console.error('Error in addCompanyAdmin:', error);
+      throw error;
+    }
+  },
+
   // Delete a company
   deleteCompany: async (id: string): Promise<void> => {
     await api.delete(`/business/${id}`);
-  }
+  },
+
+  // Get all admins of a company
+  getCompanyAdmins: async (businessId: string): Promise<any> => {
+    try {
+      const response = await api.get(`/business/${businessId}/admin`);
+      return response.data;
+    } catch (error) {
+      console.error('Error in getCompanyAdmins:', error);
+      throw error;
+    }
+  },
 };
 
 export default businessService;

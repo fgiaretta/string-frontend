@@ -20,17 +20,21 @@ import {
   DialogTitle,
   Snackbar,
   Alert,
-  Tooltip
+  Tooltip,
+  TextField,
+  Grid
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EmailIcon from '@mui/icons-material/Email';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import GoogleIcon from '@mui/icons-material/Google';
 import PeopleIcon from '@mui/icons-material/People';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { useQuery } from '@tanstack/react-query';
 import { Company } from '../types';
 import businessService from '../services/businessService';
@@ -38,31 +42,38 @@ import businessService from '../services/businessService';
 export default function Companies() {
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [addAdminDialogOpen, setAddAdminDialogOpen] = useState(false);
+  const [listAdminsDialogOpen, setListAdminsDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [companyAdmins, setCompanyAdmins] = useState<any[]>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-
-  // Fetch companies data
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => businessService.getCompanies(),
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [adminData, setAdminData] = useState({
+    name: '',
+    email: '',
+    whatsappId: '',
+    whatsappName: '',
+    whatsappDisplayNumber: ''
   });
+
+  const { data: companiesResponse, isLoading, error, refetch } = useQuery({
+    queryKey: ['companies'],
+    queryFn: businessService.getCompanies
+  });
+
+  const handleAddClick = () => {
+    navigate('/companies/new');
+  };
+
+  const handleEditClick = (id: string) => {
+    navigate(`/companies/${id}`);
+  };
 
   const handleDeleteClick = (company: Company) => {
     setSelectedCompany(company);
     setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (selectedCompany) {
-      try {
-        await businessService.deleteCompany(selectedCompany.id);
-        refetch(); // Refresh the data after deletion
-        setDeleteDialogOpen(false);
-      } catch (error) {
-        console.error('Error deleting company:', error);
-      }
-    }
   };
 
   const handleDeleteCancel = () => {
@@ -70,16 +81,27 @@ export default function Companies() {
     setSelectedCompany(null);
   };
 
-  const handleViewDetails = (id: string) => {
-    navigate(`/companies/${id}`);
+  const handleDeleteConfirm = async () => {
+    if (!selectedCompany) return;
+    
+    try {
+      await businessService.deleteCompany(selectedCompany.id);
+      setSnackbarMessage(`Company ${selectedCompany.name} deleted successfully`);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+      refetch();
+    } catch (error) {
+      console.error('Error deleting company:', error);
+      setSnackbarMessage(`Failed to delete company: ${(error as Error).message || 'Unknown error'}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    } finally {
+      setDeleteDialogOpen(false);
+      setSelectedCompany(null);
+    }
   };
 
-  const handleViewProviders = (id: string) => {
-    navigate(`/companies/${id}/providers`);
-  };
-
-  const copyGoogleAuthUrl = () => {
-    // Get the environment part of the URL
+  const handleCopyGoogleAuthUrl = () => {
     const getEnvPrefix = () => {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       if (apiUrl.includes('api-dev')) return 'api-dev';
@@ -93,11 +115,13 @@ export default function Companies() {
     navigator.clipboard.writeText(url)
       .then(() => {
         setSnackbarMessage('Google Auth URL copied to clipboard!');
+        setSnackbarSeverity('success');
         setSnackbarOpen(true);
       })
       .catch(err => {
         console.error('Failed to copy URL: ', err);
         setSnackbarMessage('Failed to copy URL to clipboard');
+        setSnackbarSeverity('error');
         setSnackbarOpen(true);
       });
   };
@@ -106,69 +130,123 @@ export default function Companies() {
     setSnackbarOpen(false);
   };
 
-  const navigateToUnassignedProviders = () => {
-    navigate('/providers/unassigned');
+  const handleListAdminsClick = async (company: Company) => {
+    setSelectedCompany(company);
+    setLoadingAdmins(true);
+    setListAdminsDialogOpen(true);
+    
+    try {
+      const admins = await businessService.getCompanyAdmins(company.id);
+      setCompanyAdmins(admins);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+      setSnackbarMessage(`Failed to fetch admins: ${(error as Error).message || 'Unknown error'}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      setCompanyAdmins([]);
+    } finally {
+      setLoadingAdmins(false);
+    }
+  };
+
+  const handleListAdminsClose = () => {
+    setListAdminsDialogOpen(false);
+    setSelectedCompany(null);
+    setCompanyAdmins([]);
+  };
+
+  const handleAddAdminClick = (company: Company) => {
+    setSelectedCompany(company);
+    setAdminData({
+      name: '',
+      email: '',
+      whatsappId: '',
+      whatsappName: '',
+      whatsappDisplayNumber: ''
+    });
+    setAddAdminDialogOpen(true);
+  };
+
+  const handleAddAdminCancel = () => {
+    setAddAdminDialogOpen(false);
+    setSelectedCompany(null);
+  };
+
+  const handleAddAdminSubmit = async () => {
+    if (!selectedCompany) return;
+    
+    try {
+      console.log('Adding admin for company:', selectedCompany.id, selectedCompany.name);
+      console.log('Admin data:', adminData);
+      
+      await businessService.addCompanyAdmin(selectedCompany.id, adminData);
+      
+      setSnackbarMessage(`Admin added successfully to ${selectedCompany.name}`);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+      setAddAdminDialogOpen(false);
+    } catch (error) {
+      console.error('Error adding admin:', error);
+      setSnackbarMessage(`Failed to add admin: ${(error as Error).message || 'Unknown error'}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleAdminDataChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAdminData({
+      ...adminData,
+      [field]: event.target.value
+    });
   };
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
       </Box>
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
-      <Box>
-        <Typography variant="h4" gutterBottom>
-          Companies
+      <Box p={3}>
+        <Typography color="error">
+          Error loading companies: {(error as Error).message}
         </Typography>
-        <Paper sx={{ p: 3, bgcolor: '#fff4f4' }}>
-          <Typography color="error">
-            Error loading companies: {(error as Error).message || 'Unknown error'}
-          </Typography>
-          <Button variant="contained" onClick={() => refetch()} sx={{ mt: 2 }}>
-            Try Again
-          </Button>
-        </Paper>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => refetch()}
+          sx={{ mt: 2 }}
+        >
+          Retry
+        </Button>
       </Box>
     );
   }
 
   return (
-    <Box>
+    <Box p={3}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">
+        <Typography variant="h4" component="h1">
           Companies
         </Typography>
-        <Box display="flex" gap={2}>
-          <Tooltip title="View unassigned providers">
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              startIcon={<PeopleIcon />}
-              onClick={navigateToUnassignedProviders}
-            >
-              Unassigned Providers
-            </Button>
-          </Tooltip>
-          <Tooltip title="Copy Google Auth Provider URL">
-            <Button 
-              variant="outlined" 
-              color="secondary" 
-              startIcon={<GoogleIcon />}
-              endIcon={<ContentCopyIcon />}
-              onClick={copyGoogleAuthUrl}
-            >
-              Google Auth Provider
-            </Button>
-          </Tooltip>
+        <Box>
+          <Button 
+            variant="outlined" 
+            color="primary" 
+            startIcon={<GoogleIcon />}
+            onClick={handleCopyGoogleAuthUrl}
+            sx={{ mr: 2 }}
+          >
+            Copy Google Auth URL
+          </Button>
           <Button 
             variant="contained" 
             color="primary" 
             startIcon={<AddIcon />}
-            onClick={() => navigate('/companies/new')}
+            onClick={handleAddClick}
           >
             Add Company
           </Button>
@@ -176,29 +254,25 @@ export default function Companies() {
       </Box>
 
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="companies table">
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>WhatsApp</TableCell>
-              <TableCell>Slack Channel</TableCell>
+              <TableCell>Users</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.businesses.map((company) => (
+            {companiesResponse && Array.isArray(companiesResponse.businesses) && companiesResponse.businesses.map((company) => (
               <TableRow key={company.id}>
-                <TableCell component="th" scope="row">
-                  {company.name}
-                </TableCell>
+                <TableCell>{company.name}</TableCell>
                 <TableCell>
-                  {company.email ? (
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <EmailIcon fontSize="small" color="action" />
-                      {company.email}
-                    </Box>
-                  ) : '-'}
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <EmailIcon fontSize="small" color="action" />
+                    {company.email || '-'}
+                  </Box>
                 </TableCell>
                 <TableCell>
                   {company.whatsappDisplayNumber ? (
@@ -208,21 +282,36 @@ export default function Companies() {
                     </Box>
                   ) : '-'}
                 </TableCell>
-                <TableCell>{company.slackChannel || '-'}</TableCell>
+                <TableCell>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <PeopleIcon fontSize="small" color="primary" />
+                    {company.userCount || 0}
+                  </Box>
+                </TableCell>
                 <TableCell align="right">
-                  <Tooltip title="View Providers">
+                  <Tooltip title="List Admins">
                     <IconButton 
-                      aria-label="providers"
-                      onClick={() => handleViewProviders(company.id)}
+                      aria-label="list-admins"
+                      onClick={() => handleListAdminsClick(company)}
                       color="primary"
                     >
-                      <PeopleIcon />
+                      <SupervisorAccountIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Add Admin">
+                    <IconButton 
+                      aria-label="add-admin"
+                      onClick={() => handleAddAdminClick(company)}
+                      color="primary"
+                    >
+                      <AdminPanelSettingsIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="View Details">
                     <IconButton 
                       aria-label="view"
-                      onClick={() => handleViewDetails(company.id)}
+                      onClick={() => handleEditClick(company.id)}
+                      color="primary"
                     >
                       <VisibilityIcon />
                     </IconButton>
@@ -230,7 +319,8 @@ export default function Companies() {
                   <Tooltip title="Edit">
                     <IconButton 
                       aria-label="edit"
-                      onClick={() => navigate(`/companies/${company.id}`)}
+                      onClick={() => handleEditClick(company.id)}
+                      color="primary"
                     >
                       <EditIcon />
                     </IconButton>
@@ -247,10 +337,10 @@ export default function Companies() {
                 </TableCell>
               </TableRow>
             ))}
-            {(!data?.businesses || data.businesses.length === 0) && (
+            {companiesResponse && (!Array.isArray(companiesResponse.businesses) || companiesResponse.businesses.length === 0) && (
               <TableRow>
                 <TableCell colSpan={5} align="center">
-                  <Typography variant="body1" sx={{ py: 2 }}>
+                  <Typography variant="body1" py={2}>
                     No companies found
                   </Typography>
                 </TableCell>
@@ -264,34 +354,167 @@ export default function Companies() {
       <Dialog
         open={deleteDialogOpen}
         onClose={handleDeleteCancel}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby="delete-dialog-title"
       >
-        <DialogTitle id="alert-dialog-title">
-          Confirm Deletion
+        <DialogTitle id="delete-dialog-title">
+          Delete Company
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete the company "{selectedCompany?.name}"? 
-            This action cannot be undone.
+          <DialogContentText>
+            Are you sure you want to delete {selectedCompany?.name}? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-            Delete
+          <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* List Admins Dialog */}
+      <Dialog
+        open={listAdminsDialogOpen}
+        onClose={handleListAdminsClose}
+        aria-labelledby="list-admins-dialog-title"
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle id="list-admins-dialog-title">
+          Admins for {selectedCompany?.name}
+        </DialogTitle>
+        <DialogContent>
+          {loadingAdmins ? (
+            <Box display="flex" justifyContent="center" p={3}>
+              <CircularProgress />
+            </Box>
+          ) : companyAdmins.length > 0 ? (
+            <TableContainer component={Paper} sx={{ mt: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>WhatsApp</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {companyAdmins.map((admin, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{admin.name || '-'}</TableCell>
+                      <TableCell>{admin.email || '-'}</TableCell>
+                      <TableCell>
+                        {admin.whatsappDisplayNumber ? (
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <WhatsAppIcon fontSize="small" color="success" />
+                            {admin.whatsappDisplayNumber}
+                          </Box>
+                        ) : '-'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Box p={3} textAlign="center">
+              <Typography variant="body1">No admins found for this company.</Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleListAdminsClose} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for copy notification */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
+      {/* Add Admin Dialog */}
+      <Dialog
+        open={addAdminDialogOpen}
+        onClose={handleAddAdminCancel}
+        aria-labelledby="add-admin-dialog-title"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="add-admin-dialog-title">
+          Add Admin to {selectedCompany?.name}
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                label="Name"
+                fullWidth
+                value={adminData.name}
+                onChange={handleAdminDataChange('name')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                type="email"
+                fullWidth
+                value={adminData.email}
+                onChange={handleAdminDataChange('email')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="WhatsApp ID"
+                fullWidth
+                value={adminData.whatsappId}
+                onChange={handleAdminDataChange('whatsappId')}
+                required
+                helperText="Format: country code + number (e.g., 5555996490737)"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="WhatsApp Name"
+                fullWidth
+                value={adminData.whatsappName}
+                onChange={handleAdminDataChange('whatsappName')}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="WhatsApp Display Number"
+                fullWidth
+                value={adminData.whatsappDisplayNumber}
+                onChange={handleAdminDataChange('whatsappDisplayNumber')}
+                required
+                helperText="Format: country code + number without '+' (e.g., 55996490737)"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAddAdminCancel}>Cancel</Button>
+          <Button 
+            onClick={handleAddAdminSubmit} 
+            color="primary" 
+            variant="contained"
+            disabled={!adminData.name || !adminData.email || !adminData.whatsappId || !adminData.whatsappName || !adminData.whatsappDisplayNumber}
+          >
+            Add Admin
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={6000} 
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
