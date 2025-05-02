@@ -15,8 +15,18 @@ import ProviderSchedule from './pages/ProviderSchedule';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 
-// Import theme provider and global styles
+// Admin Panel Pages
+import Login from './pages/Login';
+import Unauthorized from './pages/Unauthorized';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminList from './pages/AdminList';
+import AdminForm from './pages/AdminForm';
+import AdminDetail from './pages/AdminDetail';
+
+// Import context providers and global styles
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import './styles/globalStyles.css';
 
 // Create a client
@@ -32,27 +42,145 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <CssBaseline />
-        <BrowserRouter>
-          <MainLayout>
+      <BrowserRouter>
+        <ThemeProvider>
+          <AuthProvider>
+            <CssBaseline />
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/items" element={<ItemList />} />
-              <Route path="/settings" element={<Settings />} />
+              {/* Public Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
+              
+              {/* Protected Routes */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin Panel Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AdminDashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admins" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AdminList />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admins/new" element={
+                <ProtectedRoute requiredRole="super">
+                  <MainLayout>
+                    <AdminForm />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admins/:id" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AdminDetail />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admins/:id/edit" element={
+                <ProtectedRoute requiredRole="super">
+                  <MainLayout>
+                    <AdminForm />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              
               {/* Business Routes */}
-              <Route path="/companies" element={<Companies />} />
-              <Route path="/companies/new" element={<AddCompany />} />
-              <Route path="/companies/:id" element={<CompanyDetail />} />
-              <Route path="/companies/:businessId/providers" element={<BusinessProviders />} />
-              <Route path="/companies/:businessId/providers/:providerId/schedule" element={<ProviderSchedule />} />
-              <Route path="/providers/unassigned" element={<DefaultProviders />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/contracts" element={<Contracts />} />
+              <Route path="/items" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ItemList />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/companies" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Companies />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/companies/new" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AddCompany />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/companies/:id" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <CompanyDetail />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/companies/:businessId/providers" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <BusinessProviders />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/companies/:businessId/providers/:providerId/schedule" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ProviderSchedule />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/providers/unassigned" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <DefaultProviders />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Reports />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/contracts" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Contracts />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              
+              {/* Catch all - redirect to dashboard */}
+              <Route path="*" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
             </Routes>
-          </MainLayout>
-        </BrowserRouter>
-      </ThemeProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

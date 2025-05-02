@@ -37,7 +37,9 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ThemeToggle from '../ThemeToggle';
+import { useAuth } from '../../context/AuthContext';
 
 const drawerWidth = 260;
 
@@ -50,9 +52,12 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { user, logout, hasPermission } = useAuth();
+  const isSuperAdmin = hasPermission('super');
   
   const [open, setOpen] = useState(!isMobile);
   const [businessSubmenuOpen, setBusinessSubmenuOpen] = useState(true);
+  const [adminSubmenuOpen, setAdminSubmenuOpen] = useState(true);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   const handleDrawerToggle = () => {
@@ -62,6 +67,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const handleBusinessSubmenuToggle = () => {
     setBusinessSubmenuOpen(!businessSubmenuOpen);
   };
+  
+  const handleAdminSubmenuToggle = () => {
+    setAdminSubmenuOpen(!adminSubmenuOpen);
+  };
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -70,13 +79,26 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+  
+  const handleLogout = () => {
+    logout();
+    handleCloseUserMenu();
+  };
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    {
+      text: 'Admin Management',
+      icon: <SupervisorAccountIcon />,
+      submenu: [
+        { text: 'Administrators', path: '/admins' },
+      ],
+      requiredRole: 'standard',
+    },
     {
       text: 'Business',
       icon: <BusinessIcon />,
@@ -100,11 +122,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
       }}>
         <Box display="flex" alignItems="center">
           <Typography
-            variant="h6"
+            variant="subtitle1"
             noWrap
             component="div"
             sx={{
-              fontWeight: 700,
+              fontWeight: 600,
               color: theme.palette.primary.main,
               display: 'flex',
               alignItems: 'center',
@@ -113,32 +135,40 @@ export default function MainLayout({ children }: MainLayoutProps) {
           >
             <Box 
               component="img" 
-              src="/logo.svg" 
-              alt="Logo" 
-              sx={{ height: 36, mr: 1.5 }} 
+              src={theme.palette.mode === 'dark' ? '/src/assets/string-white.png' : '/src/assets/string-black.png'} 
+              alt="String Logo"
+              sx={{ height: 24, mr: 1 }}
             />
-            Control Panel
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Admin Panel</Box>
           </Typography>
         </Box>
-        <IconButton onClick={handleDrawerToggle} className="drawer-toggle">
+        <IconButton onClick={handleDrawerToggle}>
           <ChevronLeftIcon />
         </IconButton>
       </Toolbar>
-      <Divider />
       <Box sx={{ overflow: 'auto', flexGrow: 1, py: 2.5 }}>
         <List component="nav" sx={{ px: 2.5 }}>
-          {menuItems.map((item) => 
-            item.submenu ? (
+          {menuItems.map((item) => {
+            // Skip items that require specific roles if user doesn't have permission
+            if (item.requiredRole && !hasPermission(item.requiredRole)) {
+              return null;
+            }
+            
+            return item.submenu ? (
               <Box key={item.text}>
                 <ListItem disablePadding>
                   <ListItemButton
-                    onClick={handleBusinessSubmenuToggle}
+                    onClick={item.text === 'Admin Management' ? handleAdminSubmenuToggle : handleBusinessSubmenuToggle}
                     sx={{
                       borderRadius: 1.5,
                       mb: 0.5,
-                      bgcolor: businessSubmenuOpen ? `${theme.palette.primary.main}14` : 'transparent',
+                      bgcolor: (item.text === 'Admin Management' ? adminSubmenuOpen : businessSubmenuOpen) 
+                        ? `${theme.palette.primary.main}14` 
+                        : 'transparent',
                       '&:hover': {
-                        bgcolor: businessSubmenuOpen ? `${theme.palette.primary.main}20` : `rgba(0, 0, 0, 0.04)`,
+                        bgcolor: (item.text === 'Admin Management' ? adminSubmenuOpen : businessSubmenuOpen)
+                          ? `${theme.palette.primary.main}20` 
+                          : `rgba(0, 0, 0, 0.04)`,
                       },
                       transition: 'background-color 0.2s ease'
                     }}
@@ -147,10 +177,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                       {item.icon}
                     </ListItemIcon>
                     <ListItemText primary={item.text} />
-                    {businessSubmenuOpen ? <ExpandLess /> : <ExpandMore />}
+                    {(item.text === 'Admin Management' ? adminSubmenuOpen : businessSubmenuOpen) ? <ExpandLess /> : <ExpandMore />}
                   </ListItemButton>
                 </ListItem>
-                <Collapse in={businessSubmenuOpen} timeout="auto" unmountOnExit>
+                <Collapse in={item.text === 'Admin Management' ? adminSubmenuOpen : businessSubmenuOpen} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding sx={{ pl: 2 }}>
                     {item.submenu.map((subItem) => (
                       <ListItem key={subItem.text} disablePadding>
@@ -173,7 +203,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             transition: 'background-color 0.2s ease'
                           }}
                         >
-                          <ListItemText primary={subItem.text} />
+                          <ListItemText primary={subItem.text} primaryTypographyProps={{ fontSize: '0.875rem' }} />
                         </ListItemButton>
                       </ListItem>
                     ))}
@@ -200,21 +230,27 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     transition: 'background-color 0.2s ease'
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
+                  <ListItemIcon sx={{ minWidth: 36 }}>
                     {item.icon}
                   </ListItemIcon>
-                  <ListItemText primary={item.text} />
+                  <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: '0.875rem' }} />
                 </ListItemButton>
               </ListItem>
-            )
-          )}
+            );
+          })}
         </List>
       </Box>
-      <Box sx={{ p: 2.5, borderTop: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1, opacity: 0.8 }}>
+      <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+        <Box 
+          component="img" 
+          src={theme.palette.mode === 'dark' ? '/src/assets/string-white.png' : '/src/assets/string-black.png'} 
+          alt="String Logo"
+          sx={{ height: 16, mb: 1, opacity: 0.8 }}
+        />
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, opacity: 0.8, fontSize: '0.7rem' }}>
           © 2025 String Technologies
         </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
           v1.0.0
         </Typography>
       </Box>
@@ -270,9 +306,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
               </IconButton>
             </Tooltip>
             <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
+              <Tooltip title={user ? `${user.username} (${user.role})` : "User"}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Admin User" src="/avatar.jpg" />
+                  <Avatar alt={user?.username || "User"} src="/avatar.jpg" />
                 </IconButton>
               </Tooltip>
               <Menu
@@ -291,6 +327,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
+                {user && (
+                  <MenuItem disabled sx={{ opacity: 1 }}>
+                    <ListItemText 
+                      primary={user.username} 
+                      secondary={user.role === 'super' ? 'Super Admin' : 'Standard Admin'} 
+                    />
+                  </MenuItem>
+                )}
+                <Divider />
                 <MenuItem onClick={handleCloseUserMenu}>
                   <ListItemIcon>
                     <AccountCircleIcon fontSize="small" />
@@ -304,7 +349,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <Typography textAlign="center">Account Settings</Typography>
                 </MenuItem>
                 <Divider />
-                <MenuItem onClick={handleCloseUserMenu}>
+                <MenuItem onClick={handleLogout}>
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" />
                   </ListItemIcon>
@@ -338,17 +383,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           width: { md: `calc(100% - ${open ? drawerWidth : 0}px)` },
-          ml: { md: open ? `${drawerWidth}px` : 0 },
-          transition: theme.transitions.create(['margin', 'width'], {
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          bgcolor: (theme) => theme.palette.background.default,
-          minHeight: '100vh',
         }}
       >
-        <Toolbar />
-        <Container maxWidth="xl" sx={{ mt: 3, mb: 4, px: { xs: 2, sm: 3, md: 4 } }} className="fade-in">
+        <Toolbar /> {/* This empty toolbar pushes content below the AppBar */}
+        <Container maxWidth="xl" sx={{ flexGrow: 1, py: 2 }}>
           {children}
         </Container>
       </Box>

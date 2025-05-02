@@ -1,17 +1,18 @@
 import axios from 'axios';
+import authService from './authService';
 
-// Create an axios instance with default config
+// Create axios instance with base URL from environment variables
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://api-dev.string.tec.br',
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add request interceptor for authentication if needed
+// Add request interceptor to add auth token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -22,15 +23,17 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor for error handling
+// Add response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
-    // Handle common errors (401, 403, 500, etc.)
-    if (error.response) {
-      if (error.response.status === 401) {
-        // Handle unauthorized access
-        localStorage.removeItem('token');
+    // Handle 401 Unauthorized errors (token expired or invalid)
+    if (error.response && error.response.status === 401) {
+      // If we're not on the login page, log the user out
+      if (window.location.pathname !== '/login') {
+        authService.logout();
         window.location.href = '/login';
       }
     }
