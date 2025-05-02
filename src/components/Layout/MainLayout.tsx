@@ -227,7 +227,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         position="fixed"
         sx={{
           zIndex: theme.zIndex.drawer + 1,
-          backgroundColor: '#ffffff',
+          backgroundColor: (theme) => theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
           color: 'text.primary',
           boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
         }}
