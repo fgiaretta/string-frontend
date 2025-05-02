@@ -11,12 +11,9 @@ import {
   InputAdornment,
   IconButton,
   useTheme,
-  Stack,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
-import EnvironmentToggle from '../components/EnvironmentToggle';
-import { useApiEnvironment } from '../context/ApiEnvironmentContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -27,7 +24,6 @@ const Login = () => {
   const { login, loading, error } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { apiUrl, isProduction } = useApiEnvironment();
 
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {};
@@ -92,17 +88,13 @@ const Login = () => {
         >
           <Box
             component="img"
-            src={theme.palette.mode === 'dark' ? '/src/assets/string-white.png' : '/src/assets/string-black.png'}
+            src={theme.palette.mode === 'dark' ? '/assets/string-white.png' : '/assets/string-black.png'}
             alt="String Logo"
             sx={{ height: 40, mb: 3 }}
           />
           <Typography component="h1" variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
             Admin Panel Login
           </Typography>
-          
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <EnvironmentToggle />
-          </Box>
 
           {error && (
             <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
@@ -171,9 +163,6 @@ const Login = () => {
         <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
             © 2025 String Technologies
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, opacity: 0.7 }}>
-            {isProduction ? 'Production' : 'Development'} API: {apiUrl}
           </Typography>
         </Box>
       </Box>
