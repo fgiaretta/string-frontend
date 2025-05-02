@@ -83,6 +83,9 @@ export const businessService = {
     } catch (error) {
       console.error('Error in getCompanyAdmins:', error);
       throw error;
+    }
+  },
+  
   // Delete an admin from a company
   deleteCompanyAdmin: async (businessId: string, adminId: string): Promise<any> => {
     try {
@@ -92,7 +95,6 @@ export const businessService = {
       console.error('Error in deleteCompanyAdmin:', error);
       throw error;
     }
-  },    }
   },
 };
 
