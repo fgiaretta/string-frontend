@@ -107,7 +107,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
         { text: 'Companies', path: '/companies' },
       ],
     },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
   const drawer = (
@@ -293,22 +292,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Notifications">
-              <IconButton sx={{ mr: 1.5 }}>
-                <Badge badgeContent={3} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
             <Stack direction="row" spacing={1} sx={{ mr: 1.5 }}>
               <ThemeToggle />
             </Stack>
-            <Tooltip title="Help">
-              <IconButton sx={{ mr: 2.5 }}>
-                <HelpOutlineIcon />
-              </IconButton>
-            </Tooltip>
-            <Box sx={{ flexGrow: 0 }}>
+            <Box sx={{ flexGrow: 0 }}>>
               <Tooltip title={user ? `${user.username} (${user.role})` : "User"}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar alt={user?.username || "User"} src="/avatar.jpg" />
