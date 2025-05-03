@@ -52,6 +52,11 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+interface ApiError {
+  message: string;
+  details?: string[];
+}
+
 interface ProfileFormData {
   username: string;
   email: string;
@@ -113,6 +118,13 @@ export default function AccountSettings() {
       });
       setTimeout(() => setPasswordSuccess(null), 5000);
     },
+    onError: (error: any) => {
+      // Handle API error response with validation details
+      if (error.response?.data?.details) {
+        return error.response.data;
+      }
+      return { message: error.message || 'An error occurred while updating your password' };
+    }
   });
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -298,7 +310,18 @@ export default function AccountSettings() {
                   )}
                   {updatePasswordMutation.isError && (
                     <Alert severity="error" sx={{ mb: 3 }}>
-                      {(updatePasswordMutation.error as Error).message || 'An error occurred while updating your password'}
+                      <Typography variant="body1" fontWeight="medium">
+                        {(updatePasswordMutation.error as ApiError).message || 'An error occurred while updating your password'}
+                      </Typography>
+                      {(updatePasswordMutation.error as ApiError).details && (
+                        <Box component="ul" sx={{ mt: 1, pl: 2 }}>
+                          {(updatePasswordMutation.error as ApiError).details?.map((detail, index) => (
+                            <Typography component="li" variant="body2" key={index}>
+                              {detail}
+                            </Typography>
+                          ))}
+                        </Box>
+                      )}
                     </Alert>
                   )}
 
