@@ -104,10 +104,19 @@ export default function AccountSettings() {
   const updatePasswordMutation = useMutation({
     mutationFn: async (data: PasswordFormData) => {
       if (!user?.id) throw new Error('User ID not found');
-      return api.put(`/panel-admin/${user.id}/password`, {
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-      });
+      try {
+        const response = await api.put(`/panel-admin/${user.id}/password`, {
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        });
+        return response;
+      } catch (error: any) {
+        // Extract the error details from the API response
+        if (error.response?.data) {
+          throw error.response.data;
+        }
+        throw new Error(error.message || 'An error occurred while updating your password');
+      }
     },
     onSuccess: () => {
       setPasswordSuccess('Password updated successfully');
@@ -117,13 +126,6 @@ export default function AccountSettings() {
         confirmPassword: '',
       });
       setTimeout(() => setPasswordSuccess(null), 5000);
-    },
-    onError: (error: any) => {
-      // Handle API error response with validation details
-      if (error.response?.data?.details) {
-        return error.response.data;
-      }
-      return { message: error.message || 'An error occurred while updating your password' };
     }
   });
 
