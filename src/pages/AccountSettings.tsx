@@ -23,7 +23,6 @@ import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import SaveIcon from '@mui/icons-material/Save';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
@@ -219,7 +218,6 @@ export default function AccountSettings() {
             >
               <Tab icon={<PersonIcon />} iconPosition="start" label="Profile" />
               <Tab icon={<LockIcon />} iconPosition="start" label="Password" />
-              <Tab icon={<NotificationsIcon />} iconPosition="start" label="Notifications" />
             </Tabs>
 
             <Box sx={{ p: 3 }}>
@@ -380,19 +378,6 @@ export default function AccountSettings() {
                     </Grid>
                   </Grid>
                 </form>
-              </TabPanel>
-
-              <TabPanel value={tabValue} index={2}>
-                <Typography variant="h6" gutterBottom>
-                  Notification Settings
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  Configure how you receive notifications and alerts
-                </Typography>
-                
-                <Alert severity="info" sx={{ mb: 3 }}>
-                  Notification settings will be available in a future update.
-                </Alert>
               </TabPanel>
             </Box>
           </Paper>
