@@ -14,6 +14,7 @@ import DefaultProviders from './pages/DefaultProviders';
 import ProviderSchedule from './pages/ProviderSchedule';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
+import AccountSettings from './pages/AccountSettings';
 
 // Admin Panel Pages
 import Login from './pages/Login';
@@ -151,6 +152,13 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <DefaultProviders />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/account-settings" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AccountSettings />
                   </MainLayout>
                 </ProtectedRoute>
               } />
