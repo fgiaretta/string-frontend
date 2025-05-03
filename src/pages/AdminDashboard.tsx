@@ -135,7 +135,7 @@ const AdminDashboard = () => {
             </Box>
             <Box 
               component="img" 
-              src={theme.palette.mode === 'dark' ? '/src/assets/string-white.png' : '/src/assets/string-black.png'} 
+              src={theme.palette.mode === 'dark' ? '/assets/s-white.png' : '/assets/s-black.png'} 
               alt="String Logo"
               sx={{ height: 24, opacity: 0.8 }}
             />

@@ -135,7 +135,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           >
             <Box 
               component="img" 
-              src={theme.palette.mode === 'dark' ? '/assets/string-white.png' : '/assets/string-black.png'} 
+              src={theme.palette.mode === 'dark' ? '/assets/s-white.png' : '/assets/s-black.png'} 
               alt="String Logo"
               sx={{ height: 24, mr: 1 }}
             />
@@ -243,7 +243,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         <Box 
           component="img" 
-          src={theme.palette.mode === 'dark' ? '/assets/string-white.png' : '/assets/string-black.png'} 
+          src={theme.palette.mode === 'dark' ? '/assets/s-white.png' : '/assets/s-black.png'} 
           alt="String Logo"
           sx={{ height: 16, mb: 1, opacity: 0.8 }}
         />

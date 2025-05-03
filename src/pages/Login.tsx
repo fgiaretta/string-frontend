@@ -88,7 +88,7 @@ const Login = () => {
         >
           <Box
             component="img"
-            src={theme.palette.mode === 'dark' ? '/assets/string-white.png' : '/assets/string-black.png'}
+            src={theme.palette.mode === 'dark' ? '/assets/s-white.png' : '/assets/s-black.png'}
             alt="String Logo"
             sx={{ height: 40, mb: 3 }}
           />
