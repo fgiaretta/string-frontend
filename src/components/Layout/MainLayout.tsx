@@ -40,9 +40,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ThemeToggle from '../ThemeToggle';
-import EnvironmentToggle from '../EnvironmentToggle';
 import { useAuth } from '../../context/AuthContext';
-import { useApiEnvironment } from '../../context/ApiEnvironmentContext';
 
 const drawerWidth = 260;
 
@@ -303,7 +301,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
               </IconButton>
             </Tooltip>
             <Stack direction="row" spacing={1} sx={{ mr: 1.5 }}>
-              <EnvironmentToggle />
               <ThemeToggle />
             </Stack>
             <Tooltip title="Help">
