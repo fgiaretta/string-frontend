@@ -295,7 +295,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <Stack direction="row" spacing={1} sx={{ mr: 1.5 }}>
               <ThemeToggle />
             </Stack>
-            <Box sx={{ flexGrow: 0 }}>>
+            <Box sx={{ flexGrow: 0 }}>
               <Tooltip title={user ? `${user.username} (${user.role})` : "User"}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar alt={user?.username || "User"} src="/avatar.jpg" />
