@@ -35,6 +35,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import PeopleIcon from '@mui/icons-material/People';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import BadgeIcon from '@mui/icons-material/Badge';
 import { useQuery } from '@tanstack/react-query';
 import { Company } from '../types';
 import businessService from '../services/businessService';
@@ -292,7 +293,6 @@ export default function Companies() {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>WhatsApp</TableCell>
-              <TableCell>Users</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -314,13 +314,16 @@ export default function Companies() {
                     </Box>
                   ) : '-'}
                 </TableCell>
-                <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <PeopleIcon fontSize="small" color="primary" />
-                    {company.userCount || 0}
-                  </Box>
-                </TableCell>
                 <TableCell align="right">
+                  <Tooltip title="View Providers">
+                    <IconButton 
+                      aria-label="view-providers"
+                      onClick={() => navigate(`/companies/${company.id}/providers`)}
+                      color="primary"
+                    >
+                      <BadgeIcon />
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="List Admins">
                     <IconButton 
                       aria-label="list-admins"
@@ -371,7 +374,7 @@ export default function Companies() {
             ))}
             {companiesResponse && (!Array.isArray(companiesResponse.businesses) || companiesResponse.businesses.length === 0) && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={4} align="center">
                   <Typography variant="body1" py={2}>
                     No companies found
                   </Typography>

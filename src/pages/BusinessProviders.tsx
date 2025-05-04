@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Typography, 
@@ -20,7 +20,11 @@ import {
   DialogTitle,
   Chip,
   Avatar,
-  Tooltip
+  Tooltip,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
@@ -30,6 +34,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventIcon from '@mui/icons-material/Event';
+import InfoIcon from '@mui/icons-material/Info';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Provider } from '../types';
 import providerService from '../services/providerService';
@@ -43,6 +48,7 @@ export default function BusinessProviders() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [instructionsDialogOpen, setInstructionsDialogOpen] = useState(false);
 
   // Fetch business data
   const { 
@@ -110,6 +116,16 @@ export default function BusinessProviders() {
 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
+    setSelectedProvider(null);
+  };
+
+  const handleInstructionsClick = (provider: Provider) => {
+    setSelectedProvider(provider);
+    setInstructionsDialogOpen(true);
+  };
+
+  const handleInstructionsClose = () => {
+    setInstructionsDialogOpen(false);
     setSelectedProvider(null);
   };
 
@@ -260,6 +276,16 @@ export default function BusinessProviders() {
                         <EventIcon />
                       </IconButton>
                     </Tooltip>
+                    <Tooltip title="View Instructions">
+                      <IconButton 
+                        aria-label="instructions"
+                        color="primary"
+                        onClick={() => handleInstructionsClick(provider)}
+                        disabled={!provider.instructions || provider.instructions.length === 0}
+                      >
+                        <InfoIcon />
+                      </IconButton>
+                    </Tooltip>
                     <IconButton 
                       aria-label="edit"
                       // onClick={() => navigate(`/companies/${businessId}/providers/${provider.id}`)}
@@ -313,6 +339,43 @@ export default function BusinessProviders() {
             disabled={deleteMutation.isPending}
           >
             {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Provider Instructions Dialog */}
+      <Dialog
+        open={instructionsDialogOpen}
+        onClose={handleInstructionsClose}
+        aria-labelledby="instructions-dialog-title"
+        aria-describedby="instructions-dialog-description"
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle id="instructions-dialog-title">
+          Instructions for {selectedProvider?.name} {selectedProvider?.surname}
+        </DialogTitle>
+        <DialogContent>
+          {selectedProvider?.instructions && selectedProvider.instructions.length > 0 ? (
+            <List>
+              {selectedProvider.instructions.map((instruction, index) => (
+                <React.Fragment key={index}>
+                  <ListItem>
+                    <ListItemText primary={instruction} />
+                  </ListItem>
+                  {index < selectedProvider.instructions.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </List>
+          ) : (
+            <DialogContentText id="instructions-dialog-description">
+              No instructions available for this provider.
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleInstructionsClose} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>
