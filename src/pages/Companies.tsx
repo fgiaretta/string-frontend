@@ -269,6 +269,15 @@ export default function Companies() {
           <Button 
             variant="outlined" 
             color="primary" 
+            startIcon={<BadgeIcon />}
+            onClick={() => navigate('/providers/unassigned')}
+            sx={{ mr: 2 }}
+          >
+            Unassigned Providers
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="primary" 
             startIcon={<GoogleIcon />}
             onClick={handleCopyGoogleAuthUrl}
             sx={{ mr: 2 }}

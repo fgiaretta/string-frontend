@@ -21,6 +21,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Removido o log de cada requisição para reduzir ruído no console
     return config;
   },
   (error) => {
@@ -31,9 +32,20 @@ api.interceptors.request.use(
 // Add response interceptor to handle auth errors
 api.interceptors.response.use(
   (response) => {
+    // Removido o log de cada resposta para reduzir ruído no console
     return response;
   },
   (error) => {
+    // Log apenas erros importantes
+    if (error.response && error.response.status !== 404) {
+      console.error('API Error:', error.response ? {
+        status: error.response.status,
+        url: error.config.url,
+        method: error.config.method?.toUpperCase(),
+        data: error.response.data
+      } : error);
+    }
+    
     // Handle 401 Unauthorized errors (token expired or invalid)
     if (error.response && error.response.status === 401) {
       // If we're not on the login page, log the user out

@@ -105,6 +105,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
       icon: <BusinessIcon />,
       submenu: [
         { text: 'Companies', path: '/companies' },
+        { text: 'Unassigned Providers', path: '/providers/unassigned' },
+      ],
+    },
+    {
+      text: 'State Machines',
+      icon: <ListAltIcon />,
+      submenu: [
+        { text: 'All State Machines', path: '/state-machines' },
+        { text: 'Business Associations', path: '/state-machines/associate' },
       ],
     },
   ];

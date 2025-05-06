@@ -228,6 +228,11 @@ export default function DefaultProviders() {
             Unassigned Providers
           </Typography>
         </Box>
+        <Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1, textAlign: 'right' }}>
+            Providers that are not assigned to any company
+          </Typography>
+        </Box>
       </Box>
 
       <TableContainer component={Paper}>

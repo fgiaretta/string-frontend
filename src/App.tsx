@@ -16,6 +16,13 @@ import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 import AccountSettings from './pages/AccountSettings';
 
+// State Machine Pages
+import StateMachines from './pages/StateMachinesUpdated';
+import StateMachineForm from './pages/StateMachineFormUpdated';
+import StateMachineTest from './pages/StateMachineTest';
+import StateMachineMonitor from './pages/StateMachineMonitor';
+import BusinessStateMachineAssociation from './pages/BusinessStateMachineAssociation';
+
 // Admin Panel Pages
 import Login from './pages/Login';
 import Unauthorized from './pages/Unauthorized';
@@ -173,6 +180,50 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <Contracts />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              
+              {/* State Machine Routes */}
+              <Route path="/state-machines" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <StateMachines />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/state-machines/new" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <StateMachineForm />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/state-machines/edit/:id" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <StateMachineForm />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/state-machines/test/:id" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <StateMachineTest />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/state-machines/monitor" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <StateMachineMonitor />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/state-machines/associate" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <BusinessStateMachineAssociation />
                   </MainLayout>
                 </ProtectedRoute>
               } />

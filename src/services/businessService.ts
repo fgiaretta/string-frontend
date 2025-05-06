@@ -1,101 +1,124 @@
 import api from './api';
-import { Company, QueryParams, BusinessResponse } from '../types';
 
-// Get the environment part of the URL
-const getEnvPrefix = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || '';
-  if (apiUrl.includes('api-dev')) return 'api-dev';
-  if (apiUrl.includes('api.')) return 'api';
-  return 'api-dev'; // Default to dev if not found
-};
+export interface Business {
+  id: string;
+  name: string;
+  email: string;
+  slackChannel: string;
+  profileImageUrl?: string;
+  whatsappId: string;
+  whatsappName: string;
+  whatsappDisplayNumber: string;
+  timezone: string;
+  category: string;
+  stateMachineConfigId?: string;
+  state: 'active' | 'inactive' | 'deleted';
+  createdAt: string;
+}
 
-export const businessService = {
-  // Get all companies
-  getCompanies: async (params?: QueryParams): Promise<BusinessResponse> => {
-    const response = await api.get('/business', { params });
-    return response.data;
-  },
-
-  // Get a single company by ID
-  getCompany: async (id: string): Promise<Company> => {
-    const env = getEnvPrefix();
-    // Use a direct fetch to the specific URL format
-    const response = await fetch(`https://${env}.string.tec.br/business/${id}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch business: ${response.statusText}`);
-    }
-    return response.json();
-  },
-
-  // Create a new company
-  createCompany: async (data: Omit<Company, 'id'>): Promise<Company> => {
-    const response = await api.post('/business', data);
-    return response.data;
-  },
-
-  // Update an existing company
-  updateCompany: async (id: string, data: Partial<Company>): Promise<Company> => {
-    const env = getEnvPrefix();
-    const response = await fetch(`https://${env}.string.tec.br/business/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to update business: ${response.statusText}`);
-    }
-    
-    return response.json();
-  },
-
-  // Add an admin to a company
-  addCompanyAdmin: async (businessId: string, adminData: {
-    name: string;
-    email: string;
-    whatsappId: string;
-    whatsappName: string;
-    whatsappDisplayNumber: string;
-  }): Promise<void> => {
+const businessService = {
+  // Get all businesses
+  getBusinesses: async () => {
     try {
-      // Use the api instance which already has the token handling
-      await api.post(`/business/${businessId}/admin`, adminData);
-      
-      console.log('Admin added successfully');
+      const response = await api.get('/business');
+      // Verificar a estrutura da resposta e retornar o array de businesses
+      return Array.isArray(response.data) ? response.data : 
+             (response.data && response.data.businesses ? response.data.businesses : []);
     } catch (error) {
-      console.error('Error in addCompanyAdmin:', error);
+      console.error('Error fetching businesses', error);
+      throw error;
+    }
+  },
+
+  // Get companies (alias for getBusinesses for backward compatibility)
+  getCompanies: async () => {
+    try {
+      const response = await api.get('/business');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching companies', error);
+      throw error;
+    }
+  },
+
+  // Get a specific business
+  getBusiness: async (id: string) => {
+    try {
+      const response = await api.get(`/business/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching business ${id}`, error);
+      throw error;
+    }
+  },
+
+  // Associate a state machine to a business
+  associateStateMachine: async (businessId: string, stateMachineConfigId: string) => {
+    try {
+      const response = await api.post(`/business/${businessId}/state-machine`, {
+        stateMachineConfigId
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error associating state machine to business ${businessId}`, error);
+      throw error;
+    }
+  },
+
+  // Remove state machine association from a business
+  removeStateMachineAssociation: async (businessId: string) => {
+    try {
+      const response = await api.delete(`/business/${businessId}/state-machine`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error removing state machine association from business ${businessId}`, error);
       throw error;
     }
   },
 
   // Delete a company
-  deleteCompany: async (id: string): Promise<void> => {
-    await api.delete(`/business/${id}`);
+  deleteCompany: async (id: string) => {
+    try {
+      const response = await api.delete(`/business/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting company ${id}`, error);
+      throw error;
+    }
   },
 
-  // Get all admins of a company
-  getCompanyAdmins: async (businessId: string): Promise<any> => {
+  // Get company admins
+  getCompanyAdmins: async (businessId: string) => {
     try {
-      const response = await api.get(`/business/${businessId}/admin`);
+      const response = await api.get(`/business/${businessId}/admins`);
       return response.data;
     } catch (error) {
-      console.error('Error in getCompanyAdmins:', error);
+      console.error(`Error fetching admins for business ${businessId}`, error);
       throw error;
     }
   },
-  
-  // Delete an admin from a company
-  deleteCompanyAdmin: async (businessId: string, adminId: string): Promise<any> => {
+
+  // Add company admin
+  addCompanyAdmin: async (businessId: string, adminData: any) => {
     try {
-      const response = await api.delete(`/business/${businessId}/admin/${adminId}`);
+      const response = await api.post(`/business/${businessId}/admins`, adminData);
       return response.data;
     } catch (error) {
-      console.error('Error in deleteCompanyAdmin:', error);
+      console.error(`Error adding admin to business ${businessId}`, error);
       throw error;
     }
   },
+
+  // Delete company admin
+  deleteCompanyAdmin: async (businessId: string, adminId: string) => {
+    try {
+      const response = await api.delete(`/business/${businessId}/admins/${adminId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting admin ${adminId} from business ${businessId}`, error);
+      throw error;
+    }
+  }
 };
 
 export default businessService;
