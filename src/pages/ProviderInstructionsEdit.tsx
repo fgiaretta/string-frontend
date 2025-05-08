@@ -371,7 +371,15 @@ const ProviderInstructionsEdit: React.FC = () => {
                   value={instruction}
                   onChange={(e) => handleInstructionChange(index, e.target.value)}
                   multiline
-                  rows={2}
+                  minRows={4}
+                  maxRows={12}
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      height: 'auto',
+                      resize: 'vertical',
+                      minHeight: '120px'
+                    }
+                  }}
                 />
                 <IconButton
                   color="error"
