@@ -12,6 +12,7 @@ import CompanyDetail from './pages/CompanyDetail';
 import BusinessProviders from './pages/BusinessProviders';
 import DefaultProviders from './pages/DefaultProviders';
 import ProviderSchedule from './pages/ProviderSchedule';
+import ProviderInstructionsEdit from './pages/ProviderInstructionsEdit';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 import AccountSettings from './pages/AccountSettings';
@@ -145,6 +146,13 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <ProviderSchedule />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/companies/:businessId/providers/:providerId/instructions" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ProviderInstructionsEdit />
                   </MainLayout>
                 </ProtectedRoute>
               } />

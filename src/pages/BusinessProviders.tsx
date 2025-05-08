@@ -34,7 +34,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventIcon from '@mui/icons-material/Event';
-import InfoIcon from '@mui/icons-material/Info';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Provider } from '../types';
 import providerService from '../services/providerService';
@@ -191,14 +191,16 @@ export default function BusinessProviders() {
             Providers for {business?.name}
           </Typography>
         </Box>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />}
-          // onClick={() => navigate(`/companies/${businessId}/providers/new`)}
-        >
-          Add Provider
-        </Button>
+        <Box>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<AddIcon />}
+            // onClick={() => navigate(`/companies/${businessId}/providers/new`)}
+          >
+            Add Provider
+          </Button>
+        </Box>
       </Box>
 
       <TableContainer component={Paper}>
@@ -276,14 +278,13 @@ export default function BusinessProviders() {
                         <EventIcon />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="View Instructions">
+                    <Tooltip title="Edit Instructions">
                       <IconButton 
-                        aria-label="instructions"
-                        color="primary"
-                        onClick={() => handleInstructionsClick(provider)}
-                        disabled={!provider.instructions || provider.instructions.length === 0}
+                        aria-label="edit-instructions"
+                        color="secondary"
+                        onClick={() => navigate(`/companies/${businessId}/providers/${provider.id}/instructions`)}
                       >
-                        <InfoIcon />
+                        <ListAltIcon />
                       </IconButton>
                     </Tooltip>
                     <IconButton 
