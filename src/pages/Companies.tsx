@@ -293,6 +293,7 @@ export default function Companies() {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>WhatsApp</TableCell>
+              <TableCell>Category</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -314,6 +315,7 @@ export default function Companies() {
                     </Box>
                   ) : '-'}
                 </TableCell>
+                <TableCell>{company.category || '-'}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="View Providers">
                     <IconButton 

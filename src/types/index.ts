@@ -35,6 +35,7 @@ export interface Company {
   whatsappId?: string;
   whatsappName?: string;
   whatsappDisplayNumber?: string;
+  category?: string;
 }
 
 // Business API response format for list

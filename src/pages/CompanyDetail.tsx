@@ -183,6 +183,16 @@ export default function CompanyDetail() {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
+                      label="Category"
+                      name="category"
+                      value={formData.category || ''}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Healthcare, Education, Retail"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
                       label="Email"
                       name="email"
                       value={formData.email || ''}
@@ -198,6 +208,14 @@ export default function CompanyDetail() {
                       <Typography>{company.name}</Typography>
                     </Box>
                   </Grid>
+                  {company.category && (
+                    <Grid item xs={12}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="subtitle1" fontWeight="bold">Category:</Typography>
+                        <Typography>{company.category}</Typography>
+                      </Box>
+                    </Grid>
+                  )}
                   {company.email && (
                     <Grid item xs={12}>
                       <Box display="flex" alignItems="center" gap={1}>

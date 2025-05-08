@@ -27,6 +27,7 @@ interface CompanyFormData {
   whatsappName: string;
   whatsappDisplayNumber: string;
   slackChannel: string;
+  category: string;
 }
 
 export default function AddCompany() {
@@ -37,7 +38,8 @@ export default function AddCompany() {
     whatsappId: '',
     whatsappName: '',
     whatsappDisplayNumber: '',
-    slackChannel: ''
+    slackChannel: '',
+    category: ''
   });
   const [errors, setErrors] = useState<Partial<Record<keyof CompanyFormData, string>>>({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -149,6 +151,18 @@ export default function AddCompany() {
                       required
                       error={!!errors.name}
                       helperText={errors.name}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      name="category"
+                      label="Category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      fullWidth
+                      placeholder="e.g. Healthcare, Education, Retail"
+                      error={!!errors.category}
+                      helperText={errors.category}
                     />
                   </Grid>
                   <Grid item xs={12}>
