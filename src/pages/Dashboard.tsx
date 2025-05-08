@@ -1,4 +1,5 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
+import QuickActions from '../components/Dashboard/QuickActions';
 
 export default function Dashboard() {
   return (
@@ -6,6 +7,10 @@ export default function Dashboard() {
       <Typography variant="h4" gutterBottom>
         Dashboard
       </Typography>
+      
+      <Box mb={4}>
+        <QuickActions />
+      </Box>
       
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>

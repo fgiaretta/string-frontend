@@ -105,6 +105,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       icon: <BusinessIcon />,
       submenu: [
         { text: 'Companies', path: '/companies' },
+        { text: 'Default Providers', path: '/providers/unassigned' },
       ],
     },
   ];
