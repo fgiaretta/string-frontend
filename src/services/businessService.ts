@@ -9,6 +9,11 @@ const getEnvPrefix = () => {
   return 'api-dev'; // Default to dev if not found
 };
 
+interface DeleteContextsResponse {
+  message: string;
+  count: number;
+}
+
 export const businessService = {
   // Get all companies
   getCompanies: async (params?: QueryParams): Promise<BusinessResponse> => {
@@ -73,6 +78,25 @@ export const businessService = {
   // Delete a company
   deleteCompany: async (id: string): Promise<void> => {
     await api.delete(`/business/${id}`);
+  },
+
+  // Delete all contexts for a business
+  deleteAllContexts: async (businessId: string): Promise<DeleteContextsResponse> => {
+    const env = getEnvPrefix();
+    const response = await fetch(`https://${env}.string.tec.br/business/${businessId}/contexts`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to delete contexts: ${response.statusText}`);
+    }
+    
+    return response.json();
   },
 
   // Get all admins of a company

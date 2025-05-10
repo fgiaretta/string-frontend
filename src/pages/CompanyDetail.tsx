@@ -27,6 +27,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import businessService from '../services/businessService';
 import { Company } from '../types';
+import DeleteAllContextsButton from '../components/business/DeleteAllContextsButton';
 
 export default function CompanyDetail() {
   const { id } = useParams<{ id: string }>();
@@ -316,6 +317,21 @@ export default function CompanyDetail() {
             </CardContent>
           </Card>
         </Grid>
+
+      {/* Danger Zone Card */}
+      <Grid item xs={12} sx={{ mt: 3 }}>
+        <Card sx={{ bgcolor: '#fff8f8' }}>
+          <CardHeader title="Danger Zone" sx={{ color: 'error.main' }} />
+          <Divider />
+          <CardContent>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              The actions below can result in permanent data loss. Please proceed with caution.
+            </Typography>
+            
+            <DeleteAllContextsButton businessId={id || ''} />
+          </CardContent>
+        </Card>
+      </Grid>
       </Grid>
 
       {/* Confirmation Dialog */}
