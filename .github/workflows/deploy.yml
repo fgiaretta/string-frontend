@@ -46,8 +46,219 @@ jobs:
           
       - name: Deploy to AWS
         run: |
-          chmod +x ./deploy-to-aws.sh
-          ./deploy-to-aws.sh --profile default
+          echo "Starting deployment process for String Frontend..."
+          
+          # Set variables
+          S3_BUCKET="panel-string-tec-br"
+          AWS_REGION="us-east-1"
+          CLOUDFRONT_CONFIG_FILE="cloudfront-config.json"
+          
+          # Step 1: Check if the S3 bucket exists, create if it doesn't
+          echo "Checking if S3 bucket exists..."
+          if ! aws s3 ls "s3://$S3_BUCKET" 2>&1 > /dev/null; then
+            echo "Bucket does not exist. Creating bucket $S3_BUCKET..."
+            aws s3 mb "s3://$S3_BUCKET" --region $AWS_REGION
+            
+            # Configure the bucket for static website hosting
+            echo "Configuring bucket for static website hosting..."
+            aws s3 website "s3://$S3_BUCKET" --index-document index.html --error-document index.html
+            
+            # Set bucket policy to allow public access
+            echo "Setting bucket policy to allow public access..."
+            aws s3api put-bucket-policy --bucket $S3_BUCKET --policy '{
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "PublicReadGetObject",
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::'$S3_BUCKET'/*"
+                }
+              ]
+            }'
+          else
+            echo "Bucket already exists."
+          fi
+          
+          # Step 2: Upload files to S3
+          echo "Uploading files to S3..."
+          aws s3 sync dist/ "s3://$S3_BUCKET" --delete
+          
+          if [ $? -ne 0 ]; then
+            echo "Upload failed. Please check your AWS credentials and permissions."
+            exit 1
+          fi
+          
+          echo "Files uploaded successfully!"
+          
+          # Step 3: Handle CloudFront distribution
+          echo "Checking CloudFront configuration..."
+          
+          # Check if CloudFront config file exists
+          if [ ! -f "$CLOUDFRONT_CONFIG_FILE" ]; then
+            echo "CloudFront configuration file $CLOUDFRONT_CONFIG_FILE not found."
+            echo "Skipping CloudFront setup."
+          else
+            # Get the domain name from the config file
+            DOMAIN_NAME=$(grep -o '"DomainName": "[^"]*"' "$CLOUDFRONT_CONFIG_FILE" | head -1 | cut -d'"' -f4)
+            
+            # Check if the domain name in the config matches our S3 bucket
+            EXPECTED_DOMAIN="$S3_BUCKET.s3-website-$AWS_REGION.amazonaws.com"
+            
+            if [[ "$DOMAIN_NAME" != "$EXPECTED_DOMAIN" ]]; then
+              echo "Warning: Domain name in CloudFront config ($DOMAIN_NAME) doesn't match the expected S3 website endpoint ($EXPECTED_DOMAIN)."
+              echo "You may need to update your CloudFront configuration."
+            fi
+            
+            # Check if distribution already exists for this domain or for the CNAME
+            DISTRIBUTIONS=$(aws cloudfront list-distributions --output json)
+            
+            # Extract CNAME from config file
+            CNAME=$(grep -o '"Items": \[[^]]*\]' "$CLOUDFRONT_CONFIG_FILE" | grep -o '"[^"]*\.tec\.br"' | tr -d '"')
+            
+            # Try to find the distribution ID by looking for the CNAME in the actual distributions list
+            if [ ! -z "$CNAME" ]; then
+              echo "Looking for existing distribution with CNAME: $CNAME"
+              # Use jq for more reliable JSON parsing (GitHub Actions has jq installed)
+              CLOUDFRONT_DISTRIBUTION_ID=$(echo "$DISTRIBUTIONS" | jq -r --arg CNAME "$CNAME" '.DistributionList.Items[] | select(.Aliases.Items[] | contains($CNAME)) | .Id' | head -1)
+              
+              if [ ! -z "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+                echo "Found existing distribution with ID: $CLOUDFRONT_DISTRIBUTION_ID for CNAME: $CNAME"
+              fi
+            fi
+            
+            # If not found by CNAME, try to find by domain name
+            if [ -z "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+              # Use jq
+              CLOUDFRONT_DISTRIBUTION_ID=$(echo "$DISTRIBUTIONS" | jq -r --arg DOMAIN "$DOMAIN_NAME" '.DistributionList.Items[] | select(.Origins.Items[].DomainName | contains($DOMAIN)) | .Id' | head -1)
+            fi
+            
+            # Validate that we have a proper CloudFront distribution ID (should be alphanumeric)
+            if [[ ! "$CLOUDFRONT_DISTRIBUTION_ID" =~ ^[A-Z0-9]+$ ]]; then
+              CLOUDFRONT_DISTRIBUTION_ID=""
+            fi
+            
+            if [ -z "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+              # Distribution doesn't exist, create a new one
+              echo "Creating new CloudFront distribution..."
+              DISTRIBUTION_RESULT=$(aws cloudfront create-distribution --distribution-config file://$CLOUDFRONT_CONFIG_FILE)
+              
+              if [ $? -ne 0 ]; then
+                echo "Failed to create CloudFront distribution."
+                echo "$DISTRIBUTION_RESULT"
+                
+                # If the error is about CNAME already existing, suggest finding the existing distribution
+                if [[ "$DISTRIBUTION_RESULT" == *"CNAMEAlreadyExists"* ]]; then
+                  echo "The CNAME $CNAME is already associated with another distribution."
+                  echo "Listing all CloudFront distributions:"
+                  aws cloudfront list-distributions --query "DistributionList.Items[].{Id:Id, DomainName:DomainName, Aliases:Aliases.Items}" --output table
+                fi
+              else
+                CLOUDFRONT_DISTRIBUTION_ID=$(echo "$DISTRIBUTION_RESULT" | jq -r '.Distribution.Id')
+                echo "CloudFront distribution created with ID: $CLOUDFRONT_DISTRIBUTION_ID"
+              fi
+            else
+              # Distribution exists, update it
+              echo "Updating existing CloudFront distribution $CLOUDFRONT_DISTRIBUTION_ID..."
+              
+              # Get the ETag and current config for the distribution
+              DIST_CONFIG_RESULT=$(aws cloudfront get-distribution-config --id $CLOUDFRONT_DISTRIBUTION_ID)
+              ETAG=$(echo "$DIST_CONFIG_RESULT" | jq -r '.ETag')
+              
+              # Create a temporary file with the current distribution config
+              TMP_CONFIG=$(mktemp)
+              echo "$DIST_CONFIG_RESULT" | jq '.DistributionConfig' > $TMP_CONFIG
+              
+              # Check if the existing distribution has logging enabled
+              HAS_LOGGING=$(jq -r 'has("Logging")' $TMP_CONFIG)
+              
+              if [ "$HAS_LOGGING" == "true" ]; then
+                echo "Existing distribution has logging enabled. Preserving logging configuration..."
+                
+                # Extract the logging configuration from the current config
+                LOGGING_CONFIG=$(jq -r '.Logging' $TMP_CONFIG)
+                
+                # Create a temporary file with our desired config
+                TMP_NEW_CONFIG=$(mktemp)
+                cat $CLOUDFRONT_CONFIG_FILE > $TMP_NEW_CONFIG
+                
+                # Check if our config already has logging
+                HAS_OUR_LOGGING=$(jq -r 'has("Logging")' $TMP_NEW_CONFIG)
+                
+                if [ "$HAS_OUR_LOGGING" == "false" ]; then
+                  # Add the logging config to our config
+                  jq --argjson logging "$LOGGING_CONFIG" '. + {Logging: $logging}' $TMP_NEW_CONFIG > ${TMP_NEW_CONFIG}.new
+                  mv ${TMP_NEW_CONFIG}.new $TMP_NEW_CONFIG
+                fi
+                
+                # Use the modified config file for the update
+                UPDATE_RESULT=$(aws cloudfront update-distribution --id $CLOUDFRONT_DISTRIBUTION_ID --if-match "$ETAG" --distribution-config file://$TMP_NEW_CONFIG)
+                
+                # Clean up the temporary file
+                rm -f $TMP_NEW_CONFIG
+              else
+                # No logging in the existing config, use our config file as is
+                UPDATE_RESULT=$(aws cloudfront update-distribution --id $CLOUDFRONT_DISTRIBUTION_ID --if-match "$ETAG" --distribution-config file://$CLOUDFRONT_CONFIG_FILE)
+              fi
+              
+              # Clean up the temporary file
+              rm -f $TMP_CONFIG
+              
+              if [ $? -ne 0 ]; then
+                echo "Failed to update CloudFront distribution."
+                echo "$UPDATE_RESULT"
+                
+                # If the error is about logging, skip the update
+                if [[ "$UPDATE_RESULT" == *"Logging is missing"* ]]; then
+                  echo "Skipping distribution update due to logging configuration mismatch."
+                  echo "The deployment will continue and cache will still be invalidated."
+                fi
+              else
+                echo "CloudFront distribution updated successfully."
+              fi
+            fi
+            
+            # Invalidate CloudFront cache if we have a distribution ID
+            if [ ! -z "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+              echo "Invalidating CloudFront cache..."
+              
+              # Verify the distribution exists before trying to invalidate
+              if aws cloudfront get-distribution --id $CLOUDFRONT_DISTRIBUTION_ID &>/dev/null; then
+                # Run the invalidation but capture the output
+                INVALIDATION_RESULT=$(aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*")
+                
+                if [ $? -ne 0 ]; then
+                  echo "CloudFront invalidation failed."
+                else
+                  # Extract just the invalidation ID for a cleaner message
+                  INVALIDATION_ID=$(echo "$INVALIDATION_RESULT" | jq -r '.Invalidation.Id')
+                  echo "CloudFront cache invalidation started successfully. ID: $INVALIDATION_ID"
+                fi
+              else
+                echo "Cannot invalidate cache: Distribution $CLOUDFRONT_DISTRIBUTION_ID does not exist."
+              fi
+            fi
+          fi
+          
+          # Print website URL
+          WEBSITE_URL="http://$S3_BUCKET.s3-website-$AWS_REGION.amazonaws.com"
+          echo "Deployment completed successfully!"
+          echo "Your website is available at: $WEBSITE_URL"
+          
+          if [ ! -z "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+            # Verify the distribution exists before trying to get its domain name
+            if aws cloudfront get-distribution --id $CLOUDFRONT_DISTRIBUTION_ID &>/dev/null; then
+              # Get CloudFront domain name
+              CF_DOMAIN=$(aws cloudfront get-distribution --id $CLOUDFRONT_DISTRIBUTION_ID | jq -r '.Distribution.DomainName')
+              echo "CloudFront URL: https://$CF_DOMAIN"
+            fi
+            
+            # Check if there's a custom domain in the CloudFront config
+            if [ ! -z "$CNAME" ]; then
+              echo "Custom domain: https://$CNAME"
+            fi
+          fi
         env:
           AWS_REGION: us-east-1
           
