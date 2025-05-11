@@ -170,18 +170,29 @@ jobs:
               TMP_CONFIG=$(mktemp)
               echo "$DIST_CONFIG_RESULT" | jq '.DistributionConfig' > $TMP_CONFIG
               
+              # Create a temporary file with our desired config
+              TMP_NEW_CONFIG=$(mktemp)
+              cat $CLOUDFRONT_CONFIG_FILE > $TMP_NEW_CONFIG
+              
+              # Check for WebACLId in the existing config
+              HAS_WEBACL=$(jq -r 'has("WebACLId")' $TMP_CONFIG)
+              if [ "$HAS_WEBACL" == "true" ]; then
+                echo "Existing distribution has WebACL enabled. Preserving WebACL configuration..."
+                WEBACL_ID=$(jq -r '.WebACLId' $TMP_CONFIG)
+                if [ "$WEBACL_ID" != "null" ] && [ ! -z "$WEBACL_ID" ]; then
+                  # Add the WebACLId to our config
+                  jq --arg webacl "$WEBACL_ID" '. + {WebACLId: $webacl}' $TMP_NEW_CONFIG > ${TMP_NEW_CONFIG}.new
+                  mv ${TMP_NEW_CONFIG}.new $TMP_NEW_CONFIG
+                fi
+              fi
+              
               # Check if the existing distribution has logging enabled
               HAS_LOGGING=$(jq -r 'has("Logging")' $TMP_CONFIG)
-              
               if [ "$HAS_LOGGING" == "true" ]; then
                 echo "Existing distribution has logging enabled. Preserving logging configuration..."
                 
                 # Extract the logging configuration from the current config
                 LOGGING_CONFIG=$(jq -r '.Logging' $TMP_CONFIG)
-                
-                # Create a temporary file with our desired config
-                TMP_NEW_CONFIG=$(mktemp)
-                cat $CLOUDFRONT_CONFIG_FILE > $TMP_NEW_CONFIG
                 
                 # Check if our config already has logging
                 HAS_OUR_LOGGING=$(jq -r 'has("Logging")' $TMP_NEW_CONFIG)
@@ -191,27 +202,21 @@ jobs:
                   jq --argjson logging "$LOGGING_CONFIG" '. + {Logging: $logging}' $TMP_NEW_CONFIG > ${TMP_NEW_CONFIG}.new
                   mv ${TMP_NEW_CONFIG}.new $TMP_NEW_CONFIG
                 fi
-                
-                # Use the modified config file for the update
-                UPDATE_RESULT=$(aws cloudfront update-distribution --id $CLOUDFRONT_DISTRIBUTION_ID --if-match "$ETAG" --distribution-config file://$TMP_NEW_CONFIG)
-                
-                # Clean up the temporary file
-                rm -f $TMP_NEW_CONFIG
-              else
-                # No logging in the existing config, use our config file as is
-                UPDATE_RESULT=$(aws cloudfront update-distribution --id $CLOUDFRONT_DISTRIBUTION_ID --if-match "$ETAG" --distribution-config file://$CLOUDFRONT_CONFIG_FILE)
               fi
               
-              # Clean up the temporary file
-              rm -f $TMP_CONFIG
+              # Use the modified config file for the update
+              UPDATE_RESULT=$(aws cloudfront update-distribution --id $CLOUDFRONT_DISTRIBUTION_ID --if-match "$ETAG" --distribution-config file://$TMP_NEW_CONFIG)
+              
+              # Clean up the temporary files
+              rm -f $TMP_CONFIG $TMP_NEW_CONFIG
               
               if [ $? -ne 0 ]; then
                 echo "Failed to update CloudFront distribution."
                 echo "$UPDATE_RESULT"
                 
-                # If the error is about logging, skip the update
-                if [[ "$UPDATE_RESULT" == *"Logging is missing"* ]]; then
-                  echo "Skipping distribution update due to logging configuration mismatch."
+                # If the error is about WebACL or logging, skip the update but continue with invalidation
+                if [[ "$UPDATE_RESULT" == *"WebACLId is missing"* ]] || [[ "$UPDATE_RESULT" == *"Logging is missing"* ]]; then
+                  echo "Skipping distribution update due to configuration mismatch."
                   echo "The deployment will continue and cache will still be invalidated."
                 fi
               else
