@@ -398,6 +398,9 @@ export const darkTheme: ThemeOptions = {
           borderRight: 'none',
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
           backgroundColor: '#1f2937',
+        },
+      },
+    },
     MuiDialog: {
       styleOverrides: {
         paper: {
@@ -418,6 +421,14 @@ export const darkTheme: ThemeOptions = {
           backgroundColor: '#1f2937',
         },
       },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },
     MuiPopover: {
       styleOverrides: {
         paper: {
@@ -438,6 +449,31 @@ export const darkTheme: ThemeOptions = {
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.04)',
           },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(59, 130, 246, 0.16)',
+            '&:hover': {
+              backgroundColor: 'rgba(59, 130, 246, 0.24)',
+            },
+          },
+        },
+      },
+    },
+    MuiTableContainer: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1f2937',
+        },
+      },
+    },
     MuiSnackbar: {
       styleOverrides: {
         root: {
@@ -454,29 +490,6 @@ export const darkTheme: ThemeOptions = {
         },
       },
     },
-    MuiListItemButton: {
-      styleOverrides: {
-        root: {
-          '&:hover': {
-    MuiTableContainer: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#1f2937',
-        },
-      },
-    },            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-          },
-          '&.Mui-selected': {
-            backgroundColor: 'rgba(59, 130, 246, 0.16)',
-            '&:hover': {
-              backgroundColor: 'rgba(59, 130, 246, 0.24)',
-            },
-          },
-        },
-      },
-    },        },
-      },
-    },
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
@@ -489,15 +502,22 @@ export const darkTheme: ThemeOptions = {
         root: {
           backgroundColor: '#1f2937',
         },
-      },
-    },    },
-    MuiDialogActions: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#1f2937',
+        standardError: {
+          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          color: '#f87171',
         },
-      },
-    },        },
+        standardWarning: {
+          backgroundColor: 'rgba(245, 158, 11, 0.15)',
+          color: '#fbbf24',
+        },
+        standardInfo: {
+          backgroundColor: 'rgba(14, 165, 233, 0.15)',
+          color: '#38bdf8',
+        },
+        standardSuccess: {
+          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+          color: '#34d399',
+        },
       },
     },
     MuiDivider: {

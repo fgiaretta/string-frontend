@@ -15,7 +15,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle
+  DialogTitle,
+  useTheme
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
@@ -24,6 +25,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import SlackIcon from '@mui/icons-material/AlternateEmail';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import WarningIcon from '@mui/icons-material/Warning';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import businessService from '../services/businessService';
 import { Company } from '../types';
@@ -320,11 +322,49 @@ export default function CompanyDetail() {
 
       {/* Danger Zone Card */}
       <Grid item xs={12} sx={{ mt: 3 }}>
-        <Card sx={{ bgcolor: '#fff8f8' }}>
-          <CardHeader title="Danger Zone" sx={{ color: 'error.main' }} />
-          <Divider />
+        <Card 
+          sx={{ 
+            bgcolor: theme => theme.palette.mode === 'dark' 
+              ? 'rgba(239, 68, 68, 0.08)' 
+              : '#fff8f8',
+            border: theme => `1px solid ${theme.palette.mode === 'dark' 
+              ? 'rgba(239, 68, 68, 0.5)' 
+              : theme.palette.error.light}`
+          }}
+        >
+          <CardHeader 
+            title={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <WarningIcon color="error" />
+                <Typography variant="h6" component="span">
+                  Danger Zone
+                </Typography>
+              </Box>
+            }
+            sx={{ 
+              color: theme => theme.palette.mode === 'dark' 
+                ? 'error.light' 
+                : 'error.main',
+              bgcolor: theme => theme.palette.mode === 'dark' 
+                ? 'rgba(239, 68, 68, 0.2)' 
+                : 'rgba(254, 202, 202, 0.4)'
+            }} 
+          />
+          <Divider sx={{ 
+            borderColor: theme => theme.palette.mode === 'dark' 
+              ? 'rgba(239, 68, 68, 0.5)' 
+              : theme.palette.error.light 
+          }} />
           <CardContent>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: theme => theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.7)' 
+                  : 'text.secondary'
+              }}
+              paragraph
+            >
               The actions below can result in permanent data loss. Please proceed with caution.
             </Typography>
             
