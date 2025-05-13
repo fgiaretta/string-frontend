@@ -26,6 +26,7 @@ import SlackIcon from '@mui/icons-material/AlternateEmail';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WarningIcon from '@mui/icons-material/Warning';
+import SendIcon from '@mui/icons-material/Send';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import businessService from '../services/businessService';
 import { Company } from '../types';
@@ -129,14 +130,24 @@ export default function CompanyDetail() {
         </Button>
         <Box display="flex" gap={2}>
           {!isEditing ? (
-            <Button 
-              variant="contained" 
-              color="primary" 
-              startIcon={<EditIcon />}
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </Button>
+            <>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                startIcon={<EditIcon />}
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                startIcon={<SendIcon />}
+                onClick={() => navigate(`/companies/${id}/massive-message`)}
+              >
+                Send Messages
+              </Button>
+            </>
           ) : (
             <>
               <Button 
@@ -254,8 +265,17 @@ export default function CompanyDetail() {
                     <TextField
                       fullWidth
                       label="WhatsApp ID"
-                      name="whatsappId"
-                      value={formData.whatsappId || ''}
+                      name="phoneNumberId"
+                      value={formData.phoneNumberId || ''}
+                      onChange={handleInputChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="WhatsApp Business Account ID"
+                      name="whatsappBusinessAccountId"
+                      value={formData.whatsappBusinessAccountId || ''}
                       onChange={handleInputChange}
                     />
                   </Grid>
@@ -306,11 +326,19 @@ export default function CompanyDetail() {
                       </Box>
                     </Grid>
                   )}
-                  {company.whatsappId && (
+                  {company.phoneNumberId && (
                     <Grid item xs={12}>
                       <Box display="flex" alignItems="center" gap={1}>
                         <Typography variant="subtitle1" fontWeight="bold">WhatsApp ID:</Typography>
-                        <Typography>{company.whatsappId}</Typography>
+                        <Typography>{company.phoneNumberId}</Typography>
+                      </Box>
+                    </Grid>
+                  )}
+                  {company.whatsappBusinessAccountId && (
+                    <Grid item xs={12}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="subtitle1" fontWeight="bold">WhatsApp Business Account ID:</Typography>
+                        <Typography>{company.whatsappBusinessAccountId}</Typography>
                       </Box>
                     </Grid>
                   )}

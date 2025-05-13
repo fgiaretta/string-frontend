@@ -32,9 +32,10 @@ export interface Company {
   name: string;
   email?: string;
   slackChannel?: string;
-  whatsappId?: string;
+  phoneNumberId?: string;
   whatsappName?: string;
   whatsappDisplayNumber?: string;
+  whatsappBusinessAccountId?: string;
   category?: string;
 }
 

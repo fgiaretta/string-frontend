@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -16,6 +16,7 @@ import ProviderInstructionsEdit from './pages/ProviderInstructionsEdit';
 import Reports from './pages/Reports';
 import Contracts from './pages/Contracts';
 import AccountSettings from './pages/AccountSettings';
+import MassiveMessage from './pages/MassiveMessage';
 
 // Admin Panel Pages
 import Login from './pages/Login';
@@ -56,9 +57,7 @@ function App() {
               {/* Protected Routes */}
               <Route path="/" element={
                 <ProtectedRoute>
-                  <MainLayout>
-                    <Dashboard />
-                  </MainLayout>
+                  <Navigate to="/dashboard" replace />
                 </ProtectedRoute>
               } />
               
@@ -156,6 +155,13 @@ function App() {
                   </MainLayout>
                 </ProtectedRoute>
               } />
+              <Route path="/companies/:businessId/massive-message" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <MassiveMessage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
               <Route path="/providers/unassigned" element={
                 <ProtectedRoute>
                   <MainLayout>
@@ -187,11 +193,7 @@ function App() {
               
               {/* Catch all - redirect to dashboard */}
               <Route path="*" element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Dashboard />
-                  </MainLayout>
-                </ProtectedRoute>
+                <Navigate to="/dashboard" replace />
               } />
             </Routes>
           </AuthProvider>

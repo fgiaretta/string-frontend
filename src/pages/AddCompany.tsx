@@ -23,9 +23,10 @@ import businessService from '../services/businessService';
 interface CompanyFormData {
   name: string;
   email: string;
-  whatsappId: string;
+  phoneNumberId: string;
   whatsappName: string;
   whatsappDisplayNumber: string;
+  whatsappBusinessAccountId: string;
   slackChannel: string;
   category: string;
 }
@@ -35,9 +36,10 @@ export default function AddCompany() {
   const [formData, setFormData] = useState<CompanyFormData>({
     name: '',
     email: '',
-    whatsappId: '',
+    phoneNumberId: '',
     whatsappName: '',
     whatsappDisplayNumber: '',
+    whatsappBusinessAccountId: '',
     slackChannel: '',
     category: ''
   });
@@ -210,12 +212,22 @@ export default function AddCompany() {
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                      name="whatsappId"
+                      name="phoneNumberId"
                       label="WhatsApp Business ID"
-                      value={formData.whatsappId}
+                      value={formData.phoneNumberId}
                       onChange={handleInputChange}
                       fullWidth
                       placeholder="e.g. 446062275257295"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      name="whatsappBusinessAccountId"
+                      label="WhatsApp Business Account ID"
+                      value={formData.whatsappBusinessAccountId}
+                      onChange={handleInputChange}
+                      fullWidth
+                      placeholder="e.g. 123456789012345"
                     />
                   </Grid>
                   <Grid item xs={12}>

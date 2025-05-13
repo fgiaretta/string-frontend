@@ -56,6 +56,35 @@ export const businessService = {
     return response.json();
   },
 
+  // Send massive message
+  sendMassiveMessage: async (businessId: string, data: {
+    templateName: string;
+    csvData: string;
+  }): Promise<any> => {
+    const env = getEnvPrefix();
+    const token = localStorage.getItem('auth_token');
+    
+    if (!token) {
+      throw new Error('Authentication token not found. Please log in again.');
+    }
+    
+    const response = await fetch(`https://${env}.string.tec.br/business/${businessId}/massive-message`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to send massive message: ${response.statusText}`);
+    }
+    
+    return response.json();
+  },
+
   // Add an admin to a company
   addCompanyAdmin: async (businessId: string, adminData: {
     name: string;
